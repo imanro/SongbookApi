@@ -1,0 +1,28 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:2.1.4.RELEASE")
+        classpath 'org.junit.platform:junit-platform-gradle-plugin:1.0.0'
+        classpath 'io.spring.gradle:dependency-management-plugin:1.0.7.RELEASE'
+    }
+}
+
+plugins {
+    id 'java'
+    id 'idea'
+    id 'org.springframework.boot' version '2.1.4.RELEASE'
+    id "io.spring.dependency-management" version "1.0.7.RELEASE"
+}
+
+group 'SongbookApi'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+
+repositories {
+    mavenCentral()
+}
