@@ -16,13 +16,19 @@ plugins {
     id "io.spring.dependency-management" version "1.0.7.RELEASE"
 }
 
-group 'SongbookApi'
-version '1.0-SNAPSHOT'
+allprojects {
+    repositories {
+        mavenCentral()
+    }
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
+    group 'SongbookApi'
+    version '1.0-SNAPSHOT'
+
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
+}
 
 
-repositories {
-    mavenCentral()
+task(bootApi, dependsOn: ":songbook-rest:bootRun") {
+
 }

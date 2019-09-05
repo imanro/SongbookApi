@@ -1,4 +1,4 @@
-package songbook.entity;
+package songbook.song.entity;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,4 +20,12 @@ class SongTest {
 
         assertEquals(111, song.getId(), "The assigned id is not match to that expected");
     }
+
+    @Test
+    void idAssigned2() {
+        song.setId(112);
+
+        assertEquals(112, song.getId(), "The assigned id is not match to that expected");
+    }
+
 }
