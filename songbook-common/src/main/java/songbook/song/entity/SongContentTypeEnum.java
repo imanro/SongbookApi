@@ -1,6 +1,6 @@
 package songbook.song.entity;
 
-public enum SongContentType {
+public enum SongContentTypeEnum {
     HEADER,
     INLINE,
     LINK,

@@ -2,5 +2,5 @@ rootProject.name = 'songbook-api'
 
 include 'songbook-common'
 include 'songbook-rest'
-
+include 'songbook-importer'
 

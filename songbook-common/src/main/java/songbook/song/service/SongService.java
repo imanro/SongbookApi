@@ -2,11 +2,8 @@ package songbook.song.service;
 
 import songbook.song.entity.Song;
 import songbook.song.entity.SongContent;
-import songbook.song.entity.SongContentType;
-import songbook.user.entity.User;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface SongService {
 

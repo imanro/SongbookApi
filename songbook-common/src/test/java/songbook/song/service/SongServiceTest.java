@@ -1,29 +1,26 @@
 package songbook.song.service;
 
-
-
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.Spy;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
+// import org.springframework.boot.test.context.SpringBootTest;
+import org.mockito.junit.jupiter.MockitoExtension;
 import songbook.song.entity.Song;
-import songbook.song.entity.SongContent;
-import songbook.song.entity.SongContentType;
+import songbook.song.entity.SongContentTypeEnum;
 import songbook.song.repository.SongContentDao;
 import songbook.song.repository.SongDao;
 import songbook.user.entity.User;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-@SpringBootTest
+// SpringBootTest only required for integration tests!
+// @SpringBootTest
+@ExtendWith(MockitoExtension.class)
+@DisplayName("SongService test")
 class SongServiceTest {
 
     @Mock
@@ -62,7 +59,7 @@ class SongServiceTest {
     @DisplayName("Can add string content")
     void addSongContent() {
         String string = "content 1";
-        SongContentType type = SongContentType.HEADER;
+        SongContentTypeEnum type = SongContentTypeEnum.HEADER;
         User user = mock(User.class);
         Song song = mock(Song.class);
 

@@ -4,7 +4,6 @@ import org.hibernate.annotations.*;
 import songbook.user.entity.User;
 
 import javax.persistence.*;
-import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import java.util.Date;
 import com.fasterxml.jackson.annotation.*;
@@ -17,7 +16,7 @@ public class SongContent {
     private long id;
 
     @Enumerated(EnumType.STRING)
-    private SongContentType type;
+    private SongContentTypeEnum type;
 
     private String url;
 
@@ -67,11 +66,11 @@ public class SongContent {
         return this;
     }
 
-    public SongContentType getType() {
+    public SongContentTypeEnum getType() {
         return type;
     }
 
-    public SongContent setType(SongContentType type) {
+    public SongContent setType(SongContentTypeEnum type) {
         this.type = type;
         return this;
     }

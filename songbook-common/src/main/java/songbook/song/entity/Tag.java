@@ -11,6 +11,8 @@ public class Tag {
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     private long id;
 
+    private String title;
+
     public long getId() {
         return id;
     }
@@ -38,7 +40,6 @@ public class Tag {
         return this;
     }
 
-    private String title;
 
     @ManyToMany(fetch = FetchType.LAZY,
             cascade = {

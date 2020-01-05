@@ -4,13 +4,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import songbook.song.entity.Song;
 import songbook.song.entity.SongContent;
-import songbook.song.entity.SongContentType;
 import songbook.song.repository.SongDao;
 import songbook.song.repository.SongContentDao;
-import songbook.user.entity.User;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class SongServiceImpl implements SongService {

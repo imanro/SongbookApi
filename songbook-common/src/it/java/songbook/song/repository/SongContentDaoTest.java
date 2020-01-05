@@ -1,12 +1,12 @@
 package songbook.song.repository;
 
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import songbook.song.entity.SongContent;
 import songbook.song.entity.Song;
-import songbook.song.entity.SongContentType;
+import songbook.song.entity.SongContentTypeEnum;
 import songbook.user.entity.User;
 import songbook.user.entity.repository.UserDao;
 
@@ -54,7 +54,7 @@ class SongContentDaoTest {
                 setUser(user).
                 setContent("My long content").
                 setUrl("http://my.url").
-                setType(SongContentType.HEADER).
+                setType(SongContentTypeEnum.HEADER).
                 setFileName("I am file.txt").
                 setMimeType("mime/type1").
                 setIsFavorite(true);
@@ -66,16 +66,16 @@ class SongContentDaoTest {
                 setUser(user).
                 setContent("My long content 2").
                 setUrl("http://my.anotherurl").
-                setType(SongContentType.GDRIVE_CLOUD_FILE).
+                setType(SongContentTypeEnum.GDRIVE_CLOUD_FILE).
                 setFileName("I am another file.txt").
                 setMimeType("mime/type2").
                 setIsFavorite(true);
 
         songContentDao.save(content2);
 
-        assertNotNull(content1.getId());
-        assertNotNull(content2.getId());
-        assertTrue(content1.getId() > 0, "The value is wrong");
+        Assertions.assertNotNull(content1.getId());
+        Assertions.assertNotNull(content2.getId());
+        Assertions.assertTrue(content1.getId() > 0, "The value is wrong");
         // assertEquals(111, song.getId(), "The assigned id is not match to that expected");
     }
 }

@@ -10,18 +10,15 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import songbook.song.entity.Song;
 import songbook.song.entity.SongContent;
-import songbook.song.entity.SongContentType;
+import songbook.song.entity.SongContentTypeEnum;
 import songbook.user.entity.User;
 import songbook.user.entity.repository.UserDao;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.MatcherAssert.assertThat;
 
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 
 
 // https://www.baeldung.com/junit-5-runwith
@@ -75,24 +72,24 @@ class SongDaoTest {
         SongContent header1 = new SongContent().
                 setSong(song).
                 setContent("1111").
-                setType(SongContentType.HEADER).
+                setType(SongContentTypeEnum.HEADER).
                 setUser(user);
 
         SongContent favoriteHeader = new SongContent().
                 setSong(song).
                 setContent("2222").
-                setType(SongContentType.HEADER).
+                setType(SongContentTypeEnum.HEADER).
                 setIsFavorite(true).
                 setUser(user);
 
         SongContent header3 = new SongContent().
                 setSong(song).
                 setContent("3333").
-                setType(SongContentType.HEADER).
+                setType(SongContentTypeEnum.HEADER).
                 setUser(user);
 
         SongContent strangeUserHeader = new SongContent().
-                setType(SongContentType.HEADER).
+                setType(SongContentTypeEnum.HEADER).
                 setUser(user2).
                 setSong(song);
 
@@ -103,7 +100,7 @@ class SongDaoTest {
         SongContent anothersSongHeader = new SongContent().
                 setContent("Another's song header").
                 setUser(user).
-                setType(SongContentType.HEADER).
+                setType(SongContentTypeEnum.HEADER).
                 setSong(anotherSong);
 
         songContentDao.save(header1);
@@ -144,7 +141,7 @@ class SongDaoTest {
         userDao.save(user);
 
         User user2 = new User();
-        user2.setEmail("nobody2@example.com");
+        user2.setEmail("nobody223@example.com");
 
         userDao.save(user2);
 
@@ -158,37 +155,37 @@ class SongDaoTest {
         SongContent song1Header1 = new SongContent().
                 setSong(song).
                 setContent("just header").
-                setType(SongContentType.HEADER).
+                setType(SongContentTypeEnum.HEADER).
                 setUser(user);
 
         SongContent song1FavoriteHeader = new SongContent().
                 setSong(song).
                 setContent("favorite header").
-                setType(SongContentType.HEADER).
+                setType(SongContentTypeEnum.HEADER).
                 setIsFavorite(true).
                 setUser(user);
 
         SongContent song1Header3 = new SongContent().
                 setSong(song).
                 setContent("just header 3").
-                setType(SongContentType.HEADER).
+                setType(SongContentTypeEnum.HEADER).
                 setUser(user);
 
         SongContent song1Header4AnotherUser = new SongContent().
                 setSong(song).
                 setContent("just header 4").
-                setType(SongContentType.HEADER).
+                setType(SongContentTypeEnum.HEADER).
                 setUser(user2);
 
 
         SongContent song2Header1 = new SongContent().
                 setSong(song2).
                 setContent("just header song 2").
-                setType(SongContentType.HEADER).
+                setType(SongContentTypeEnum.HEADER).
                 setUser(user);
 
         SongContent song2FavoriteHeader = new SongContent().
-                setType(SongContentType.HEADER).
+                setType(SongContentTypeEnum.HEADER).
                 setIsFavorite(true).
                 setContent("favorite header song 2").
                 setUser(user).
@@ -255,7 +252,7 @@ class SongDaoTest {
         SongContent header1 = new SongContent().
                 setSong(song).
                 setContent("String in which Name is in the middle").
-                setType(SongContentType.HEADER).
+                setType(SongContentTypeEnum.HEADER).
                 setUser(user);
 
         Song anotherSong = new Song();
@@ -264,7 +261,7 @@ class SongDaoTest {
         SongContent header2 = new SongContent().
                 setSong(anotherSong).
                 setContent("String in which param is not presented").
-                setType(SongContentType.HEADER).
+                setType(SongContentTypeEnum.HEADER).
                 setUser(user);
 
         songContentDao.save(header1);
@@ -290,14 +287,14 @@ class SongDaoTest {
         SongContent header1 = new SongContent().
                 setSong(song).
                 setContent("Header Song A").
-                setType(SongContentType.HEADER).
+                setType(SongContentTypeEnum.HEADER).
                 setUser(user);
         songContentDao.save(header1);
 
         SongContent header2 = new SongContent().
                 setSong(song).
                 setContent("Header Song B").
-                setType(SongContentType.HEADER).
+                setType(SongContentTypeEnum.HEADER).
                 setUser(user);
         songContentDao.save(header2);
 

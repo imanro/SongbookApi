@@ -2,12 +2,12 @@ package songbook.song.entity;
 
 import org.junit.jupiter.api.Test;
 
-public class SongContentTypeTest {
+class SongContentTypeTest {
 
     @Test
     void toStringWorks() {
-        String typeHeader = SongContentType.HEADER.name();
-        String typeHeaderTitle = SongContentType.HEADER.toString();
+        String typeHeader = SongContentTypeEnum.HEADER.name();
+        String typeHeaderTitle = SongContentTypeEnum.HEADER.toString();
 
         System.out.println(typeHeaderTitle);
     }
