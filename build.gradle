@@ -1,3 +1,5 @@
+// https://docs.gradle.org/current/userguide/multi_project_builds.html
+
 buildscript {
     repositories {
         mavenCentral()
@@ -14,21 +16,173 @@ plugins {
     id 'idea'
     id 'org.springframework.boot' version '2.1.4.RELEASE'
     id "io.spring.dependency-management" version "1.0.7.RELEASE"
+    id 'application'
 }
 
 allprojects {
+    version = '0.1'
+}
+
+subprojects {
     repositories {
         mavenCentral()
+        jcenter()
     }
 
-    group 'SongbookApi'
-    version '1.0-SNAPSHOT'
+    apply plugin: 'java-library'
+    apply plugin: 'idea'
+    apply plugin: 'application'
+    apply plugin: 'jacoco'
+    apply plugin: 'org.springframework.boot'
+    apply plugin: 'io.spring.dependency-management'
 
     sourceCompatibility = 1.8
     targetCompatibility = 1.8
+
+    dependencies {
+        testImplementation('org.springframework:spring-test:5.1.6.RELEASE')
+        testImplementation('org.junit.jupiter:junit-jupiter-api:5.3.2')
+        testImplementation('org.hamcrest:hamcrest-library:1.3')
+        testImplementation('org.springframework.boot:spring-boot-test-autoconfigure:2.1.4.RELEASE')
+        testImplementation('org.mockito:mockito-core:2.28.2')
+        testImplementation('org.mockito:mockito-junit-jupiter:2.18.3')
+        testRuntime('org.junit.jupiter:junit-jupiter-engine:5.3.2')
+    }
+
+    jacoco {
+        toolVersion = "0.8.2"
+    }
+
+    jacocoTestReport {
+        reports {
+            xml.enabled true
+            csv.enabled false
+            html.enabled true
+        }
+    }
+
+    test {
+        useJUnitPlatform()
+        testLogging {
+            //    events "passed", "skipped", "failed"
+            showStandardStreams = true
+        }
+    }
 }
 
+project(':songbook-importer') {
+    version '0.1'
+
+    bootRun {
+        if (project.hasProperty('args')) {
+            args project.args.split(',')
+        }
+    }
+
+    dependencies {
+        api project(":songbook-common")
+        implementation("org.springframework.boot:spring-boot-starter-jdbc")
+        implementation('com.fasterxml.jackson.core:jackson-annotations:2.9.9')
+    }
+
+}
+
+// this way to put special settings to project:
+
+project(':songbook-common') {
+    version '0.1'
+
+    mainClassName = 'songbook.SongbookApplication'
+
+// to separate integrationTest
+// see https://www.petrikainulainen.net/programming/gradle/getting-started-with-gradle-integration-testing/
+    sourceSets {
+        integrationTest {
+            java {
+                compileClasspath += main.output + test.output
+                runtimeClasspath += main.output + test.output
+                srcDir file('src/it/java')
+            }
+            resources.srcDir file('src/it/resources')
+        }
+    }
+    dependencies {
+        api ('org.springframework.boot:spring-boot-starter-data-jpa')
+        api ("org.springframework.data:spring-data-commons")
+
+        implementation ('com.fasterxml.jackson.core:jackson-annotations:2.9.9')
+        implementation ('mysql:mysql-connector-java:8.0.16')
+        implementation ('com.fasterxml.jackson.core:jackson-annotations:2.9.9')
+
+        annotationProcessor (
+                "org.hibernate.javax.persistence:hibernate-jpa-2.1-api:1.0.2.Final",
+                "javax.annotation:javax.annotation-api:1.3.2"
+        )
+    }
+
+// The next two lines fixes unresolved dependencies for other subprojects
+// https://stackoverflow.com/questions/47598848/spring-boot-multi-module-project-with-gradle-doesnt-build
+    bootJar {
+        enabled = false
+    }
+
+
+    jar {
+        enabled = true
+    }
+
+
+    configurations {
+        integrationTestCompile.extendsFrom testCompile
+        integrationTestRuntime.extendsFrom testRuntime
+        integrationTestImplementation.extendsFrom testImplementation
+    }
+
+    task integrationTest(type: Test) {
+        useJUnitPlatform()
+
+        testClassesDirs = sourceSets.integrationTest.output.classesDirs
+        classpath = sourceSets.integrationTest.runtimeClasspath
+        outputs.upToDateWhen { false }
+    }
+
+    task mysqlClean (type:Exec) {
+        commandLine 'mysql', '-hlocalhost', '-usongbook_new', '-psongbook_new', '-e', 'drop database songbook_new_test; create database songbook_new_test;'
+    }
+
+    // test.dependsOn(mysqlClean)
+
+    integrationTest.mustRunAfter test
+}
+
+project(':songbook-rest') {
+    apply plugin: 'war'
+
+    version '0.1'
+
+    dependencies {
+        api project(":songbook-common")
+        implementation ("org.springframework.boot:spring-boot-starter-web")
+        implementation ('org.springframework.boot:spring-boot-starter-data-jpa')
+        providedRuntime('org.springframework.boot:spring-boot-starter-tomcat')
+    }
+
+    bootJar {
+        baseName = 'gs-spring-boot'
+        version =  '0.1.0'
+    }
+
+    bootWar {
+        version =  '0.1.0'
+        archiveName = 'songbook.war'
+    }
+}
 
 task(bootApi, dependsOn: ":songbook-rest:bootRun") {
 
 }
+
+task(runImport, dependsOn: ":songbook-importer:bootRun") {
+
+}
+
