@@ -9,6 +9,7 @@ import java.util.*;
 import com.fasterxml.jackson.annotation.*;
 import songbook.song.view.Details;
 import songbook.song.view.Summary;
+import songbook.tag.entity.Tag;
 
 @Entity
 public class Song {
@@ -51,6 +52,7 @@ public class Song {
                     CascadeType.PERSIST,
                     CascadeType.MERGE
             })
+    @OrderBy("title ASC")
     @JoinTable(
             name = "tag_song",
             joinColumns = { @JoinColumn(name = "song_id") },

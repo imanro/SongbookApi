@@ -1,7 +1,9 @@
 package songbook.song.service;
 
+import org.springframework.stereotype.Service;
 import songbook.song.entity.Song;
 import songbook.song.entity.SongContent;
+import songbook.tag.entity.Tag;
 
 import java.util.List;
 
@@ -32,5 +34,4 @@ public interface SongService {
     void deleteSong(Song song);
 
     boolean isCloudContentShouldBeSynced(Song song);
-
 }

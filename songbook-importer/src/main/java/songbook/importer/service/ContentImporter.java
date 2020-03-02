@@ -2,21 +2,21 @@ package songbook.importer.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import songbook.importer.dao.source.SongContentSrcDao;
 import songbook.song.entity.Song;
 import songbook.song.entity.SongContent;
 import songbook.song.entity.SongContentTypeEnum;
 import songbook.song.repository.SongContentDao;
 import songbook.song.repository.SongDao;
 import songbook.user.entity.User;
-import songbook.user.entity.repository.UserDao;
+import songbook.user.repository.UserDao;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
-public class ContentImporter {
+public class ContentImporter extends AbstractImporter {
     @Autowired
-    private songbook.importer.dao.source.SongContentDaoImpl songContentDaoSrc;
+    private SongContentSrcDao songContentDaoSrc;
 
     @Autowired
     private SongDao songDaoTrg;
@@ -74,18 +74,6 @@ public class ContentImporter {
         });
     }
 
-    public User getDefaultUser() {
-        long id = 1;
-        Optional<User> user = userDao.findById(id);
-        if(user.isPresent()) {
-            System.out.println("Default user is found, getting by ID");
-            return user.get();
-        } else {
-            System.out.println("Creating a new default user");
-            return createDefaultUser();
-        }
-    }
-
     public SongContentTypeEnum convertType(String type) throws ContentImporterException {
         switch(type) {
             case("header"):
@@ -99,13 +87,5 @@ public class ContentImporter {
             default:
                 throw new ContentImporterException("Unknown type given");
         }
-    }
-
-    private User createDefaultUser() {
-        User newUser = new User();
-        newUser.setId(1);
-        newUser.setEmail("nobody@example.com");
-        userDao.save(newUser);
-        return newUser;
     }
 }

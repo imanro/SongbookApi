@@ -26,7 +26,7 @@ import java.util.Optional;
  */
 @Transactional
 @Repository
-public interface SongDao extends JpaRepository<Song, Long> {
+public interface SongDao extends JpaRepository<Song, Long>, SongDaoCustom {
 
     // headers should be always connected to certain user. when adding song into account, define procedure to copy headers from another user accounts to this
     @Query("SELECT e FROM Song e " +

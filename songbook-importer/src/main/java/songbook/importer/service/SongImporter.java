@@ -3,20 +3,22 @@ package songbook.importer.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
+
+import songbook.importer.dao.source.SongSrcDao;
 import songbook.song.entity.Song;
 import songbook.song.repository.SongDao;
 
 @Service
 public class SongImporter {
     @Autowired
-    private songbook.importer.dao.source.SongDaoImpl songDaoSrc;
+    private SongSrcDao songSrcDao;
 
     @Autowired
     private SongDao songDaoTrg;
 
     public void runImport() {
         // get all src songs
-        List<songbook.importer.model.source.Song> srcSongs = songDaoSrc.findAll();
+        List<songbook.importer.model.source.Song> srcSongs = songSrcDao.findAll();
 
         srcSongs.forEach((srcSong) -> {
             System.out.println("Importing \"" + srcSong.getId() + "\" song");

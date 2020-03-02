@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.*;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.boot.autoconfigure.*;
+import songbook.importer.service.ConcertImporter;
 import songbook.importer.service.ContentImporter;
 import songbook.importer.service.SongImporter;
 
@@ -24,11 +25,17 @@ public class ImporterApplication implements ApplicationRunner {
     @Autowired
     private ContentImporter contentImporter;
 
+    @Autowired
+    private ConcertImporter concertImporter;
+
+
     private static final String ARG_MODE = "m";
 
     private static final String MODE_SONG = "song";
 
     private static final String MODE_CONTENT = "content";
+
+    private static final String MODE_CONCERT = "concert";
 
     public static void main(String... args) {
         // This way we just start a command line application
@@ -61,10 +68,17 @@ public class ImporterApplication implements ApplicationRunner {
                         System.out.println("Running Song Import...");
                         songImporter.runImport();
                         break;
+
                     case(MODE_CONTENT):
                         System.out.println("Running Content Import...");
                         contentImporter.runImport();
                         break;
+
+                    case(MODE_CONCERT):
+                        System.out.println("Running Concert Import...");
+                        concertImporter.runImport();
+                        break;
+
                     default:
                         System.err.println("Unknown mode given, exiting");
                         break;

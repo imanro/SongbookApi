@@ -1,4 +1,9 @@
-package songbook.song.entity;
+package songbook.tag.entity;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonView;
+import songbook.song.entity.Song;
+import songbook.tag.view.Summary;
 
 import javax.persistence.*;
 import java.util.HashSet;
@@ -9,9 +14,20 @@ public class Tag {
 
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
+    @JsonView(Summary.class)
     private long id;
 
+    @JsonView(Summary.class)
     private String title;
+
+    @ManyToMany(fetch = FetchType.LAZY,
+            cascade = {
+                    CascadeType.PERSIST,
+                    CascadeType.MERGE
+            },
+            mappedBy = "tags")
+    @JsonIgnore
+    private Set<Song> songs = new HashSet<>();
 
     public long getId() {
         return id;
@@ -39,14 +55,4 @@ public class Tag {
         this.songs = songs;
         return this;
     }
-
-
-    @ManyToMany(fetch = FetchType.LAZY,
-            cascade = {
-                    CascadeType.PERSIST,
-                    CascadeType.MERGE
-            },
-            mappedBy = "tags")
-    private Set<Song> songs = new HashSet<>();
-
 }

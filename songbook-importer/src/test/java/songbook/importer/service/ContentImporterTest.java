@@ -5,7 +5,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.context.SpringBootTest;
 import songbook.song.entity.SongContentTypeEnum;
 import songbook.user.entity.User;
-import songbook.user.entity.repository.UserDao;
+import songbook.user.repository.UserDao;
 import org.mockito.*;
 import org.junit.jupiter.api.*;
 
