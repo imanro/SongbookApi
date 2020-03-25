@@ -5,7 +5,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import songbook.song.entity.Song;
-import songbook.song.entity.Tag;
+import songbook.tag.entity.Tag;
+import static org.junit.jupiter.api.Assertions.*;
 
 // https://www.baeldung.com/junit-5-runwith
 // https://docs.spring.io/spring-boot/docs/2.1.4.RELEASE/reference/htmlsingle/
@@ -27,6 +28,8 @@ class TagDaoTest {
 
     @Test
     void saveSong() {
+        System.out.println("Iio iio");
+
         Song song = new Song();
         Tag tag1 = new Tag();
         tag1.setTitle("I am title");

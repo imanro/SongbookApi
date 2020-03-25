@@ -3,7 +3,7 @@ package songbook.tag.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
 import songbook.song.entity.Song;
-import songbook.tag.view.Summary;
+import songbook.util.view.Summary;
 
 import javax.persistence.*;
 import java.util.HashSet;

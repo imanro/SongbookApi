@@ -147,8 +147,8 @@ public class SongContent {
         return this;
     }
 
-    @Override
-    public String toString() {
-        return String.format("SongContent.java{id=%d}", id);
-    }
+//    @Override
+    // public String toString() {
+//        return String.format("SongContent.java{id=%d}", id);
+//    }
 }

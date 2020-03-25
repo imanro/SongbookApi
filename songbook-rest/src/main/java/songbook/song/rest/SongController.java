@@ -8,6 +8,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import songbook.song.entity.Song;
+import songbook.song.service.SongService;
+import songbook.song.service.SongServiceException;
 import songbook.song.view.Summary;
 import songbook.tag.entity.Tag;
 import songbook.tag.repository.TagDao;
@@ -30,10 +32,12 @@ public class SongController {
     @Autowired
     private TagDao tagDao;
 
+    @Autowired
+    private SongService songService;
+
     @GetMapping("{id}")
     @ResponseBody
     public Song getSongById(@PathVariable("id") long id){
-        System.out.println(id);
         User user = getDefaultUser();
         return songDao.findByIdWithHeaders(id, user).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "item not found"));
     }
@@ -41,7 +45,7 @@ public class SongController {
 
     @GetMapping("")
     @JsonView(Summary.class)
-    public Page<Song> findSongsByHeader(@RequestParam(required = false, name = "search") String search, Pageable pageable){
+    public Page<Song> findSongsByHeader(@RequestParam(required = false, name = "search") String search, Pageable pageable) throws ResponseStatusException {
         System.out.println(pageable.getOffset() + " offset");
         System.out.println(pageable.getPageSize() + " size");
         User user = getDefaultUser();
@@ -57,7 +61,7 @@ public class SongController {
     }
 
     @PostMapping("{songId}/tags/{tagId}")
-    public Song attachSongToTag(@PathVariable("songId") long songId, @PathVariable("tagId") long tagId){
+    public Song attachSongToTag(@PathVariable("songId") long songId, @PathVariable("tagId") long tagId) throws ResponseStatusException {
         // search for song with such id
         User user = getDefaultUser();
         Optional<Song> songOpt = songDao.findByIdWithHeaders(songId, user);
@@ -89,7 +93,7 @@ public class SongController {
     }
 
     @DeleteMapping("{songId}/tags/{tagId}")
-    public Song detachSongFromTag(@PathVariable("songId") long songId, @PathVariable("tagId") long tagId){
+    public Song detachSongFromTag(@PathVariable("songId") long songId, @PathVariable("tagId") long tagId) throws ResponseStatusException {
         // search for song with such id
         Optional<Song> songOpt = songDao.findById(songId);
         if(!songOpt.isPresent()) {
@@ -109,6 +113,27 @@ public class SongController {
         songDao.save(song);
 
         return song;
+    }
+
+    @GetMapping("syncCloudContent/{songId}")
+    public Song syncSongContent(@PathVariable("songId") long songId) throws ResponseStatusException  {
+        User user = getDefaultUser();
+        Song song = songDao.findByIdWithHeaders(songId, user).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "item not found"));
+
+        // + update sync time
+
+        // + the problem is with auto ids in google drive - we should preserve old ids in the new db
+
+        Song updatedSong;
+
+        try {
+            updatedSong = songService.syncCloudContent(song, user);
+        } catch(SongServiceException e) {
+            System.out.println("An exception has occurred: " + e.getMessage());
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "A Server error occurred");
+        }
+
+        return updatedSong;
     }
 
     private User getDefaultUser() {

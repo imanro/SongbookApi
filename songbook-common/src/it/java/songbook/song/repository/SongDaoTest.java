@@ -12,13 +12,14 @@ import songbook.song.entity.Song;
 import songbook.song.entity.SongContent;
 import songbook.song.entity.SongContentTypeEnum;
 import songbook.user.entity.User;
-import songbook.user.entity.repository.UserDao;
+import songbook.user.repository.UserDao;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 
 // https://www.baeldung.com/junit-5-runwith
@@ -109,23 +110,20 @@ class SongDaoTest {
         songContentDao.save(strangeUserHeader);
         songContentDao.save(anothersSongHeader);
 
-        Song foundSong = songDao.findByIdWithHeaders(song.getId(), user);
-        assertNotNull(foundSong, "The song is not found");
+        Optional<Song> foundSongOpt = songDao.findByIdWithHeaders(song.getId(), user);
+        assertTrue(foundSongOpt.isPresent(), "The song is not found");
+
+        Song foundSong = foundSongOpt.get();
+        assertEquals(3, foundSong.getHeaders().size(), "The count of headers is wrong");
 
         try {
-            assertEquals(3, foundSong.getHeaders().size(), "The count of headers is wrong");
+            // Think about types, may be not set, but arraylist
+            Iterator it = foundSong.getHeaders().iterator();
+            Object header = it.next();
+            assertTrue(((SongContent) header).getIsFavorite(), "The value is wrong");
 
-            try {
-                // Think about types, may be not set, but arraylist
-                Iterator it = foundSong.getHeaders().iterator();
-                Object header = it.next();
-                assertTrue(((SongContent) header).getIsFavorite(), "The value is wrong");
-
-            } catch (IndexOutOfBoundsException ce) {
-                throw ce;
-            }
-        } catch(NoSuchElementException e) {
-            throw e;
+        } catch (IndexOutOfBoundsException ce) {
+            throw ce;
         }
 
         // foundSong.ifPresent(x -> System.out.println(x.getHeaders().getContent()));

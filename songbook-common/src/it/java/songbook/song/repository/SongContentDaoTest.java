@@ -8,7 +8,7 @@ import songbook.song.entity.SongContent;
 import songbook.song.entity.Song;
 import songbook.song.entity.SongContentTypeEnum;
 import songbook.user.entity.User;
-import songbook.user.entity.repository.UserDao;
+import songbook.user.repository.UserDao;
 
 import java.util.ArrayList;
 import static org.junit.jupiter.api.Assertions.*;

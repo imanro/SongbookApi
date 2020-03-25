@@ -1,4 +1,4 @@
 package songbook.tag.view;
 
-public interface Summary {
+public interface Summary extends songbook.util.view.Summary {
 }

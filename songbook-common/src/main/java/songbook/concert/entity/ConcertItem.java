@@ -4,9 +4,9 @@ import songbook.song.entity.Song;
 import org.hibernate.annotations.*;
 import javax.persistence.*;
 import javax.persistence.Entity;
-
+import songbook.concert.view.Summary;
+import songbook.concert.view.Details;
 import com.fasterxml.jackson.annotation.*;
-
 import java.util.Date;
 
 @Entity
@@ -22,7 +22,6 @@ public class ConcertItem {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "song_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    @JsonBackReference
     private Song song;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)

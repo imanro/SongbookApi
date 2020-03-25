@@ -7,15 +7,15 @@ import javax.persistence.*;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
+import songbook.util.view.Summary;
 import songbook.song.view.Details;
-import songbook.song.view.Summary;
 import songbook.tag.entity.Tag;
 
 @Entity
 public class Song {
 
     @Id
-    @GeneratedValue(strategy=GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @JsonView(Summary.class)
     private long id;
 
@@ -42,12 +42,17 @@ public class Song {
 
     @Column(name = "cloud_content_sync_time")
     @JsonView(Summary.class)
-    private String cloudContentSyncTime;
+    private Date cloudContentSyncTime;
+
+    @Transient
+    @JsonView(Summary.class)
+    private boolean isCloudContentNeedsToBeSynced;
 
     @Column(name = "sb_v1_id")
     private int sbV1Id;
 
     @ManyToMany(fetch = FetchType.LAZY,
+            // THE cascade is required if you want to save items by getTags().add() and then songDao.save(item) !!!!
             cascade = {
                     CascadeType.PERSIST,
                     CascadeType.MERGE
@@ -55,8 +60,8 @@ public class Song {
     @OrderBy("title ASC")
     @JoinTable(
             name = "tag_song",
-            joinColumns = { @JoinColumn(name = "song_id") },
-            inverseJoinColumns = { @JoinColumn(name = "tag_id") }
+            joinColumns = {@JoinColumn(name = "song_id")},
+            inverseJoinColumns = {@JoinColumn(name = "tag_id")}
     )
     @JsonView(Details.class)
     private Set<Tag> tags = new HashSet<>();
@@ -67,7 +72,13 @@ public class Song {
     @JsonView(Details.class)
     private Set<SongContent> headers;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "song")
+    @OneToMany(fetch = FetchType.LAZY,
+            mappedBy = "song"
+            /*,
+            // THE cascade is required if you want to save items by getTags().add() and then songDao.save(item) !!!!
+            cascade = {
+                    CascadeType.ALL
+            }*/)
     @JsonView(Details.class)
     private Set<SongContent> content;
 
@@ -125,11 +136,11 @@ public class Song {
         return this;
     }
 
-    public String getCloudContentSyncTime() {
+    public Date getCloudContentSyncTime() {
         return cloudContentSyncTime;
     }
 
-    public Song setCloudContentSyncTime(String cloudContentSyncTime) {
+    public Song setCloudContentSyncTime(Date cloudContentSyncTime) {
         this.cloudContentSyncTime = cloudContentSyncTime;
         return this;
     }
@@ -158,7 +169,7 @@ public class Song {
         return content;
     }
 
-     public Song setContent(Set<SongContent> content) {
+    public Song setContent(Set<SongContent> content) {
         this.content = content;
         return this;
     }
@@ -177,8 +188,26 @@ public class Song {
         return this;
     }
 
-    @Override
-    public String toString() {
-        return String.format("SongDao.java{id=%d}", id);
+    public boolean getIsCloudContentNeedsToBeSynced() {
+        return isCloudContentNeedsToBeSynced;
+    }
+
+//    @Override
+//    public String toString() {
+//        return String.format("SongDao.java{id=%d}", id);
+//    }
+
+    @PostLoad
+    private void postLoad() {
+        if (this.cloudContentSyncTime != null) {
+            Date currentDate = new Date();
+
+            long sec = (currentDate.getTime() - this.cloudContentSyncTime.getTime()) / 1000;
+            this.isCloudContentNeedsToBeSynced = sec > 120;
+
+        } else {
+            this.isCloudContentNeedsToBeSynced = true;
+        }
+        // this.isCloudContentNeededToBeSynced =
     }
 }

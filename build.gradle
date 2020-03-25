@@ -1,5 +1,8 @@
 // https://docs.gradle.org/current/userguide/multi_project_builds.html
 
+// If something wrong with build in Idea
+// Try File/Invalidate Caches
+
 buildscript {
     repositories {
         mavenCentral()
@@ -110,6 +113,10 @@ project(':songbook-common') {
         api ('org.springframework.boot:spring-boot-starter-data-jpa')
         api ("org.springframework.data:spring-data-commons")
 
+        api ('com.google.api-client:google-api-client:1.30.6')
+        api ('com.google.oauth-client:google-oauth-client-jetty:1.30.6')
+        api ('com.google.apis:google-api-services-drive:v3-rev192-1.25.0')
+
         implementation ('com.fasterxml.jackson.core:jackson-annotations:2.9.9')
         implementation ('mysql:mysql-connector-java:8.0.16')
         implementation ('com.fasterxml.jackson.core:jackson-annotations:2.9.9')
@@ -150,7 +157,7 @@ project(':songbook-common') {
         commandLine 'mysql', '-hlocalhost', '-usongbook_new', '-psongbook_new', '-e', 'drop database songbook_new_test; create database songbook_new_test;'
     }
 
-    // test.dependsOn(mysqlClean)
+    integrationTest.dependsOn(mysqlClean)
 
     integrationTest.mustRunAfter test
 }
@@ -183,6 +190,10 @@ task(bootApi, dependsOn: ":songbook-rest:bootRun") {
 }
 
 task(runImport, dependsOn: ":songbook-importer:bootRun") {
+
+}
+
+task(it, dependsOn: ":songbook-common:integrationTest") {
 
 }
 
