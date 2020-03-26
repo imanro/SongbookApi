@@ -7,7 +7,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
-// import org.springframework.boot.test.context.SpringBootTest;
+import static org.junit.jupiter.api.Assertions.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import songbook.cloud.CloudException;
 import songbook.cloud.entity.CloudFile;
@@ -46,37 +46,11 @@ class SongServiceTest {
     void init() {
     }
 
-
-    void addSongContent() {
-        String string = "content 1";
-        SongContentTypeEnum type = SongContentTypeEnum.HEADER;
-        User user = mock(User.class);
-        Song song = mock(Song.class);
-
-        /*
-        SongContent songContent = new SongContent();
-        when(songContentDao.save(any())).thenReturn(songContent);
-        when(songService.createSongContent()).thenReturn(songContent);
-
-        SongContent savedContent = songService.addSongContent(string, type, song, user);
-
-        assertNotNull(savedContent, "The return value is wrong (mocking problem perhaps)");
-        // mocking this made me create new method in songService: createSongContent
-
-        assertEquals(string, savedContent.getContent(), String.format("The \"%s\" value is wrong", "content"));
-        assertEquals(user, savedContent.getUser(), String.format("The \"%s\" value is wrong", "user"));
-        assertEquals(song, savedContent.getSong(), String.format("The \"%s\" value is wrong", "song"));
-        assertEquals(type, savedContent.getType(), String.format("The \"%s\" value is wrong", "type"));
-*/
-        // I worry about actual results, not about calls
-    }
-
     // + test that we cannot use dao without of setting root folder first
 
     @Test
     @DisplayName("Syncing Song Content Will add Missing CloudFiles as Content into database")
     void syncingSongContentWillAddMissingCloudFilesAsContent() throws CloudException, SongServiceException {
-
         User user = mock(User.class);
 
         // To use mockito methods, we must mock base entity;
@@ -109,6 +83,8 @@ class SongServiceTest {
         verify(songContentDao, times(2)).save(any());
     }
 
+    // Throws is okay in tests!
+    // https://stackoverflow.com/questions/16596418/how-to-handle-exceptions-in-junit
     @Test
     @DisplayName("Syncing Song Content Will add Missing CloudFiles as Content into database")
     void syncingSongContentWillRemoveExtraSongContentWhenMissingInCloud() throws CloudException, SongServiceException {
@@ -153,6 +129,27 @@ class SongServiceTest {
         verify(songContentDao, times(2)).delete(any());
     }
 
+    @Test
+    void syncingSongContentWillUpdateSongCloudContentSyncTimeProperty() throws CloudException, SongServiceException {
+        User user = mock(User.class);
+        Song song = mock(Song.class);
+
+        Set<SongContent> songContentSet = new HashSet<SongContent>();
+        List<CloudFile> cloudFiles = new ArrayList<>();
+        when(cloudDao.getSongFiles(song)).thenReturn(cloudFiles);
+        when(song.getContent()).thenReturn(songContentSet);
+
+        when(song.setCloudContentSyncTime(any())).thenCallRealMethod();
+        when(song.getCloudContentSyncTime()).thenCallRealMethod();
+
+        Date nowDate = new Date();
+
+        songService.syncCloudContent(song, user);
+
+        assertNotNull(song.getCloudContentSyncTime(), "The syncCloudContent time property is null");
+        // the same second as exec time
+        assertEquals(Math.round((float)(nowDate.getTime() / 1000)), Math.round((float)(song.getCloudContentSyncTime().getTime() / 1000)));
+    }
 
     private SongContent initSongContentCloud(Song song) {
         SongContent content = new SongContent();

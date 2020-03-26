@@ -1,6 +1,7 @@
 package songbook.cloud.driver;
 
 import com.google.api.client.http.FileContent;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.google.api.client.auth.oauth2.Credential;
@@ -18,6 +19,7 @@ import com.google.api.services.drive.DriveScopes;
 import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.FileList;
 import songbook.cloud.CloudException;
+import songbook.cloud.configuration.Properties;
 import songbook.cloud.entity.CloudFile;
 
 import java.io.FileNotFoundException;
@@ -44,11 +46,14 @@ public class GDrive implements CloudDriver {
 
     private static final String CREDENTIALS_FILE_PATH = "credentials.json";
 
-    private String rootFolderName;
-
     private Drive service;
 
+    @Autowired
+    Properties properties;
+
     public GDrive() throws CloudException {
+
+        System.out.println("Call Constructor!!");
 
         try {
             this.service = this.initService();
@@ -237,7 +242,7 @@ public class GDrive implements CloudDriver {
     private CloudFile findRootFolder() throws CloudDriverException {
         try {
             FileList result = this.getService().files().list()
-                    .setQ("mimeType='application/vnd.google-apps.folder' and 'root' in parents and name='" + getRootFolderName() + "' and trashed=false")
+                    .setQ("mimeType='application/vnd.google-apps.folder' and 'root' in parents and name='" + properties.getRootFolderName() + "' and trashed=false")
                     .setSpaces("drive")
                     .execute();
 
@@ -253,22 +258,8 @@ public class GDrive implements CloudDriver {
         }
     }
 
-    @Override
-    public GDrive setRootFolderName(String rootFolderName) {
-        this.rootFolderName = rootFolderName;
-        return this;
-    }
-
-    public String getRootFolderName() throws CloudDriverException {
-        if (rootFolderName == null) {
-            throw new CloudDriverException("The root folder is not set");
-        }
-
-        return rootFolderName;
-    }
-
     private CloudFile createRootFolder() throws CloudDriverException {
-        return createFolder(getRootFolderName());
+        return createFolder(properties.getRootFolderName());
     }
 
     private Credential getCredentials(final NetHttpTransport HTTP_TRANSPORT) throws IOException {

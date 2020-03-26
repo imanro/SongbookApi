@@ -16,6 +16,4 @@ public interface CloudDriver {
     CloudFile createFolder(String name, CloudFile parentFolder) throws CloudDriverException;
 
     CloudFile uploadFile(java.io.File filePath, String fileName, String mimeType, CloudFile parentFolder) throws CloudDriverException;
-
-    CloudDriver setRootFolderName(String name);
 }

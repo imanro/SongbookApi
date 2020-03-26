@@ -6,6 +6,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.junit.jupiter.api.BeforeEach;
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
+import org.springframework.test.context.TestPropertySource;
 import songbook.cloud.CloudException;
 import songbook.cloud.entity.CloudFile;
 import songbook.song.entity.Song;
@@ -16,17 +17,13 @@ import java.io.InputStreamReader;
 import java.util.List;
 
 @SpringBootTest
+@TestPropertySource(locations = "/cloud-dao.properties")
 class CloudDaoTest {
 
     @Autowired
     private CloudDao cloudDao;
 
     private static final String ROOT_FOLDER_NAME = "songbook";
-
-    @BeforeEach
-    void setRootFolder() {
-        cloudDao.setRootFolderName(ROOT_FOLDER_NAME);
-    }
 
     @Test
     void throwsExceptionWhenRootFolderIsNotSet() {

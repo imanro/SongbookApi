@@ -31,9 +31,6 @@ public class SongServiceImpl implements SongService {
     @Autowired
     private CloudDao cloudDao;
 
-    // TODO: move this into property file maybe
-    private static final String ROOT_FOLDER_NAME = "songbook";
-
     @Override
     public int mergeSongs(long masterID, List<Long> toMerge) {
         return 0;
@@ -41,8 +38,6 @@ public class SongServiceImpl implements SongService {
 
     @Override
     public Song syncCloudContent(Song song, User user) throws SongServiceException {
-
-        cloudDao.setRootFolderName(ROOT_FOLDER_NAME);
 
         // 1) get song content
         if(song.getContent() == null) {
