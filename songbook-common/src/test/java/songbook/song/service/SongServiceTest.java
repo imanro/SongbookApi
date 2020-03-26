@@ -146,9 +146,9 @@ class SongServiceTest {
 
         songService.syncCloudContent(song, user);
 
-        assertNotNull(song.getCloudContentSyncTime(), "The syncCloudContent time property is null");
+        assertNotNull(song.getCloudContentSyncTime(), "The cloudContentSyncTime property is null");
         // the same second as exec time
-        assertEquals(Math.round((float)(nowDate.getTime() / 1000)), Math.round((float)(song.getCloudContentSyncTime().getTime() / 1000)));
+        assertEquals(Math.round((float)(nowDate.getTime() / 1000)), Math.round((float)(song.getCloudContentSyncTime().getTime() / 1000)), "The cloudContentSyncTime is wrong ");
     }
 
     private SongContent initSongContentCloud(Song song) {
