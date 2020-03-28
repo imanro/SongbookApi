@@ -108,6 +108,19 @@ public class SongServiceImpl implements SongService {
         // return songDao.findByIdWithHeaders(song.getId(), user).orElseThrow(() -> new SongServiceException("Unable to get the refreshed song"));
     }
 
+    @Override
+    public CloudFile createCloudContentFromSongContent(SongContent content) throws SongServiceException {
+
+        if(content.getType() != SongContentTypeEnum.GDRIVE_CLOUD_FILE) {
+            throw new SongServiceException("The given songContent entity has not right type (" + content.getType() + ")");
+        }
+        CloudFile cloudFile = new CloudFile();
+        cloudFile.setId(content.getContent());
+        cloudFile.setName(content.getFileName());
+        cloudFile.setMimeType(content.getMimeType());
+        return cloudFile;
+    }
+
     private <T, U> List<T> findMissingItems(List<T> first, List<U> second, BiPredicate<T, U> compareLambda) {
 
         List<T> missing = new ArrayList();

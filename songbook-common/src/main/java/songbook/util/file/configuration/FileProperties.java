@@ -1,4 +1,4 @@
-package songbook.cloud.configuration;
+package songbook.util.file.configuration;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,25 +11,24 @@ import org.springframework.stereotype.Component;
 // if the .properties file is placed along with war, it should be parsed
 
 
-
 @Component
-public class Properties {
+public class FileProperties {
 
-    private String rootFolderName;
+    private String tmpDirFsPath;
 
     @Autowired // checkme is it needed
-    public Properties(
-            @Value("${songbook.cloud.driver.gdrive.root-folder-name}") String rootFolderName
+    public FileProperties(
+            @Value("${songbook.util.file.tmpDirFsPath}") String tmpDirFsPath
     ) {
-        this.rootFolderName = rootFolderName;
+        this.tmpDirFsPath = tmpDirFsPath;
     }
 
-    public String getRootFolderName() throws RuntimeException {
+    public String getTmpDirFsPath() throws Exception {
 
-        if (rootFolderName == null) {
-            throw new RuntimeException("root-folder-name is not set by properties");
+        if (tmpDirFsPath == null) {
+            throw new Exception("tmpDirFsPath is not set by properties");
         }
 
-        return rootFolderName;
+        return tmpDirFsPath;
     }
 }

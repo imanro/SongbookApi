@@ -1,0 +1,148 @@
+package songbook.song.content.service;
+
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Spy;
+import org.mockito.junit.jupiter.MockitoExtension;
+import songbook.cloud.CloudException;
+import songbook.cloud.entity.CloudFile;
+import songbook.cloud.repository.CloudDao;
+import songbook.content.service.PdfProcessor;
+import songbook.content.service.PdfProcessorException;
+import songbook.song.entity.SongContent;
+import songbook.song.entity.SongContentTypeEnum;
+import songbook.song.service.SongService;
+import songbook.song.service.SongServiceException;
+
+import static org.mockito.Mockito.*;
+
+import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
+import java.util.List;
+
+// @ActiveProfiles("test")
+// @SpringBootTest(classes = MockApplication.class)
+@DisplayName("SongService test")
+@ExtendWith(MockitoExtension.class) // this way to not use it approach
+public class PdfProcessorTest {
+
+
+    @Mock
+    SongService songService;
+
+    @Mock
+    CloudDao cloudDao;
+
+    @Spy
+    @InjectMocks // this way to not use it approach
+    private PdfProcessor pdfProcessor;
+
+    // Positive tests
+    @Test
+    void pdfCompileShouldDownloadFiles() throws SongServiceException, CloudException, PdfProcessorException {
+
+        int amountOfPdfs = 2;
+
+        List<SongContent> contents = this.getSongContentsWithPdf(amountOfPdfs);
+
+        CloudFile cloudFile = new CloudFile();
+
+        when(songService.createCloudContentFromSongContent(any())).thenReturn(cloudFile);
+
+        ByteArrayOutputStream bs = new ByteArrayOutputStream();
+        when(cloudDao.getFileContents(any())).thenReturn(bs);
+
+        PDDocument document = new PDDocument();
+
+        doReturn(document).when(pdfProcessor).loadPdf(any());
+
+        // when(pdfProcessor.loadPdf(any())).thenReturn(document);
+
+        pdfProcessor.pdfCompile(contents);
+
+        verify(cloudDao, times(amountOfPdfs)).getFileContents(any());
+    }
+
+    // Negative tests
+    @Test
+    void pdfCompileWillThrowAnExceptionIfTheresNoMatchedFiles() {
+
+        List<SongContent> notValidSongContents = this.getSongContentsWithoutPdf();
+
+        Assertions.assertThrows(PdfProcessorException.class, () -> pdfProcessor.pdfCompile(notValidSongContents),
+                "The exception wasn't thrown");
+    }
+
+    @Test
+    void pdfCompileInabilityToCreateCloudFileShouldThrowAnException() throws SongServiceException {
+
+        List<SongContent> contents = this.getSongContentsWithPdf();
+
+        when(songService.createCloudContentFromSongContent(any())).thenThrow(SongServiceException.class);
+
+        Assertions.assertThrows(PdfProcessorException.class, () -> pdfProcessor.pdfCompile(contents),
+                "The exception wasn't thrown");
+    }
+
+    @Test
+    void pdfCompileInabilityToDownloadSongContentShouldThrowAnException() throws SongServiceException, CloudException {
+
+        List<SongContent> contents = this.getSongContentsWithPdf();
+
+        CloudFile cloudFile = new CloudFile();
+
+        when(songService.createCloudContentFromSongContent(any())).thenReturn(cloudFile);
+
+        when(cloudDao.getFileContents(any())).thenThrow(CloudException.class);
+
+        Assertions.assertThrows(PdfProcessorException.class, () -> pdfProcessor.pdfCompile(contents),
+                "The exception wasn't thrown");
+    }
+
+
+    private List<SongContent> getSongContentsWithoutPdf() {
+        List<SongContent> songContents = new ArrayList<>();
+
+        SongContent songContent1 = new SongContent();
+        songContent1.setType(SongContentTypeEnum.HEADER);
+
+        songContents.add(songContent1);
+
+        SongContent songContent2 = new SongContent();
+        songContent2.setType(SongContentTypeEnum.GDRIVE_CLOUD_FILE);
+        songContent2.setMimeType("application/octet-stream");
+        songContents.add(songContent2);
+
+
+        return songContents;
+    }
+
+    private List<SongContent> getSongContentsWithPdf(int amount) {
+        List<SongContent> songContents = new ArrayList<>();
+
+        for(int i = 0; i < amount; i++) {
+            SongContent songContent = new SongContent();
+            songContent.setType(SongContentTypeEnum.GDRIVE_CLOUD_FILE);
+            songContent.setMimeType("application/pdf");
+            songContents.add(songContent);
+        }
+
+        return songContents;
+    }
+
+    private List<SongContent> getSongContentsWithPdf() {
+        List<SongContent> songContents = new ArrayList<>();
+
+        SongContent songContent1 = new SongContent();
+        songContent1.setType(SongContentTypeEnum.HEADER);
+        songContents.add(songContent1);
+
+        List<SongContent> pdfContent = getSongContentsWithPdf(1);
+        songContents.addAll(pdfContent);
+
+        return songContents;
+    }
+}

@@ -19,7 +19,7 @@ import com.google.api.services.drive.DriveScopes;
 import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.FileList;
 import songbook.cloud.CloudException;
-import songbook.cloud.configuration.Properties;
+import songbook.cloud.configuration.CloudProperties;
 import songbook.cloud.entity.CloudFile;
 
 import java.io.*;
@@ -49,7 +49,7 @@ public class GDrive implements CloudDriver {
     private HashMap<String, String> mimesSubstitute;
 
     @Autowired
-    Properties properties;
+    CloudProperties properties;
 
     public GDrive() throws CloudException {
 
