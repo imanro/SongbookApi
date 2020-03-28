@@ -36,7 +36,7 @@ public class ConcertController {
     @GetMapping("{id}")
     @JsonView(Details.class)
     @ResponseBody
-    public Concert findConertById(@PathVariable("id") long id){
+    public Concert findCocnertById(@PathVariable("id") long id){
         System.out.println(id);
         User user = getDefaultUser();
 

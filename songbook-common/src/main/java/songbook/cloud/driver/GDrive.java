@@ -53,8 +53,6 @@ public class GDrive implements CloudDriver {
 
     public GDrive() throws CloudException {
 
-        System.out.println("Call Constructor!!");
-
         try {
             this.service = this.initService();
 

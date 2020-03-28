@@ -1,5 +1,6 @@
 package songbook.content.service;
 
+import org.apache.pdfbox.io.MemoryUsageSetting;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +11,7 @@ import songbook.cloud.repository.CloudDao;
 import songbook.song.entity.SongContent;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import songbook.song.entity.SongContentTypeEnum;
@@ -42,15 +44,8 @@ public class PdfProcessor {
             throw new PdfProcessorException("There's no PDFs in song contents list");
         }
 
-        // obtain tmp folder path (usualy, /tmp), maybe, from properties file - add configuration bean
-
-        // if tmpDirResolver cannot return tmpDir - exception UT2
-
-        // create temporary folder in temp, if we cannot - throw an exception - UT3
-
-
-        // create new empty pdf
-        PDDocument outDocument = new PDDocument();
+        // Read cloud files first
+        List<byte[]> pdfContents = new ArrayList();
 
         for (SongContent content : needleContents) {
             // enhanced for
@@ -69,24 +64,32 @@ public class PdfProcessor {
             // UT 3 - unable to download file
             try {
                 bs = cloudDao.getFileContents(cloudFile);
-            } catch(CloudException e) {
+            } catch (CloudException e) {
                 throw new PdfProcessorException("Unable to create PDF, an exception occurred when downloading a content", e);
             }
 
             byte[] byteContent = bs.toByteArray();
+            pdfContents.add(byteContent);
+        }
+
+        // Now, create target document
+        // PDDocument outDocument = new PDDocument(MemoryUsageSetting.setupTempFileOnly());
+        PDDocument outDocument = new PDDocument();
+
+        for (byte[] pdfContent : pdfContents) {
 
             // create pdf from this file
             // UT 5 - unable to load document
-            PDDocument srcDocument = loadPdf(byteContent);
+            PDDocument srcDocument = loadPdf(pdfContent);
 
             int pageCount = srcDocument.getNumberOfPages();
+
 
             // clone by pages, add to original pdf
             for (int i = 0; i < pageCount; i++) {
                 PDPage page = srcDocument.getPage(i);
                 outDocument.addPage(page);
             }
-
             // end of loop
         }
 
@@ -95,7 +98,7 @@ public class PdfProcessor {
         try {
             outDocument.save(out);
         } catch(IOException e) {
-            throw new PdfProcessorException("Unable to save the result document, an exception has occurred", e);
+            throw new PdfProcessorException("Unable to save the result document, an exception has occurred: " +  e.getMessage());
         }
 
         return out.toByteArray();
@@ -105,6 +108,7 @@ public class PdfProcessor {
         PDDocument srcDocument;
 
         try {
+            // srcDocument = PDDocument.load(byteContent, "", null, null, MemoryUsageSetting.setupMainMemoryOnly());
             srcDocument = PDDocument.load(byteContent);
         } catch (IOException e) {
             throw new PdfProcessorException("Unable to create PDF, an exception occurred while parsing src document", e);

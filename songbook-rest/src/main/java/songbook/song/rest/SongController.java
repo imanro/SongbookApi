@@ -115,12 +115,10 @@ public class SongController {
         return song;
     }
 
-    @GetMapping("syncCloudContent/{songId}")
+    @PatchMapping("syncCloudContent/{songId}")
     public Song syncSongContent(@PathVariable("songId") long songId) throws ResponseStatusException  {
         User user = getDefaultUser();
         Song song = songDao.findByIdWithHeaders(songId, user).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "item not found"));
-
-        // + update sync time
 
         // + the problem is with auto ids in google drive - we should preserve old ids in the new db
 
