@@ -22,13 +22,11 @@ import songbook.cloud.CloudException;
 import songbook.cloud.configuration.Properties;
 import songbook.cloud.entity.CloudFile;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 // @See
@@ -48,6 +46,8 @@ public class GDrive implements CloudDriver {
 
     private Drive service;
 
+    private HashMap<String, String> mimesSubstitute;
+
     @Autowired
     Properties properties;
 
@@ -64,6 +64,8 @@ public class GDrive implements CloudDriver {
         } catch (IOException e) {
             throw new CloudException("IO exception", e);
         }
+
+        initMimesSubstitute();
     }
 
     /**
@@ -200,6 +202,30 @@ public class GDrive implements CloudDriver {
         }
     }
 
+    @Override
+    public ByteArrayOutputStream getFileContents(CloudFile file) throws CloudDriverException {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        String targetMimeType = this.getSubstituteMimeType(file.getMimeType());
+
+        if (this.isTheMimeTypeGoogleDocsFormat(file.getMimeType())) {
+            try {
+                getService().files().export(file.getId(), targetMimeType)
+                        .executeMediaAndDownloadTo(outputStream);
+            } catch (IOException e) {
+                throw new CloudDriverException("Could not get file contents, an exception has occurred", e);
+            }
+        } else {
+            try {
+                getService().files().get(file.getId())
+                        .executeMediaAndDownloadTo(outputStream);
+            } catch (IOException e) {
+                throw new CloudDriverException("Could not get file contents, an exception has occurred", e);
+            }
+        }
+
+        return outputStream;
+    }
+
     /**
      * Creates abstract cloud files by given gdrive, set its properties
      *
@@ -292,5 +318,27 @@ public class GDrive implements CloudDriver {
 
     private Drive getService() {
         return service;
+    }
+
+    private boolean isTheMimeTypeGoogleDocsFormat(String mimeType) {
+        return mimeType.contains("application/vnd.google-apps");
+    }
+
+    private void initMimesSubstitute() throws CloudDriverException {
+        this.mimesSubstitute = new HashMap<>();
+        this.mimesSubstitute.put("application/vnd.google-apps.document", "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+        this.mimesSubstitute.put("application/vnd.google-apps.presentation", "application/vnd.openxmlformats-officedocument.presentationml.presentation");
+    }
+
+    private String getSubstituteMimeType(String mimeType) throws CloudDriverException {
+        if(this.isTheMimeTypeGoogleDocsFormat(mimeType)) {
+            if(this.mimesSubstitute.containsKey(mimeType)) {
+                return this.mimesSubstitute.get(mimeType);
+            } else {
+                throw new CloudDriverException("There is no substitute for the type " + mimeType);
+            }
+        } else {
+            return mimeType;
+        }
     }
 }

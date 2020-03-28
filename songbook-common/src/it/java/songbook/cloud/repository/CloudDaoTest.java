@@ -11,9 +11,7 @@ import songbook.cloud.CloudException;
 import songbook.cloud.entity.CloudFile;
 import songbook.song.entity.Song;
 
-import java.io.File;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.List;
 
 @SpringBootTest
@@ -75,7 +73,7 @@ class CloudDaoTest {
     }
 
     @Test
-    void canUploadTheSongFile() {
+    void canUploadTheSongFile() throws NullPointerException, CloudException {
 
         Song song = new Song();
         song.setId(this.getExistingSongId());
@@ -84,23 +82,41 @@ class CloudDaoTest {
         String fileName = "test.txt";
 
         File file;
-        try {
-            // https://www.baeldung.com/reading-file-in-java
-            file = new File(getClass().getClassLoader().getResource(fileName).getFile());
-        } catch(NullPointerException e){
-            System.out.println("The file " + fileName + " could not be readed");
-            throw e;
-        }
 
-        CloudFile cloudFile = null;
+        // https://www.baeldung.com/reading-file-in-java
+        file = new File(getClass().getClassLoader().getResource(fileName).getFile());
 
-        try {
-            cloudFile = cloudDao.uploadSongFile(song, file, fileName);
-        } catch(CloudException e) {
-            System.out.println("An exception occurred");
-        }
+        CloudFile cloudFile = cloudDao.uploadSongFile(song, file, fileName);
 
         Assertions.assertNotNull(cloudFile, "The file didn't uploaded");
+    }
+
+    @Test
+    void fileOfRegularMimeTypeCanBeDownloaded() throws CloudException {
+        CloudFile fileToDownload = new CloudFile();
+        fileToDownload.setId("1vA092O5FP1DtZ7p__JtYyJbx-jF8WIvo");
+        fileToDownload.setMimeType("application/pdf");
+
+        ByteArrayOutputStream stream = cloudDao.getFileContents(fileToDownload);
+        byte[] bytes = stream.toByteArray();
+
+        Assertions.assertTrue(bytes.length > 0, "The bytes of a given file are null");
+        // stream.get
+        // Assertions.assert
+    }
+
+    @Test
+    void fileOfGoogleDriveTypeCanBeDownloaded() throws CloudException {
+        CloudFile fileToDownload = new CloudFile();
+        fileToDownload.setId("10TxbOByfMUb1ytFQ72XNHWQHiAHHwjKEzNE7BJBhFJA");
+        fileToDownload.setMimeType("application/vnd.google-apps.document");
+
+        ByteArrayOutputStream stream = cloudDao.getFileContents(fileToDownload);
+        byte[] bytes = stream.toByteArray();
+
+        Assertions.assertTrue(bytes.length > 0, "The bytes of a given file are null");
+        // stream.get
+        // Assertions.assert
     }
 
     private int getRandom() {

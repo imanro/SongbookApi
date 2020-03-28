@@ -8,7 +8,10 @@ import songbook.song.entity.Song;
 import org.springframework.stereotype.Repository;
 import org.springframework.beans.factory.annotation.Autowired;
 import songbook.cloud.driver.GDrive;
+
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -61,8 +64,9 @@ public class CloudDao {
         return getDriver().uploadFile(filePath, fileName, mimeType, songFolder);
     }
 
-    public String getRootFolderName() {
-        return this.rootFolderName;
+    public ByteArrayOutputStream getFileContents(CloudFile file) throws CloudException {
+        // okay, lets get the mime substitute for file mime type
+        return getDriver().getFileContents(file);
     }
 
     protected CloudDriver getDriver() throws CloudException {

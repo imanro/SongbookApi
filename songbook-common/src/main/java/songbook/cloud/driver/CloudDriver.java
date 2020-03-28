@@ -1,6 +1,7 @@
 package songbook.cloud.driver;
 
 import songbook.cloud.entity.CloudFile;
+import java.io.ByteArrayOutputStream;
 import java.util.List;
 
 public interface CloudDriver {
@@ -16,4 +17,6 @@ public interface CloudDriver {
     CloudFile createFolder(String name, CloudFile parentFolder) throws CloudDriverException;
 
     CloudFile uploadFile(java.io.File filePath, String fileName, String mimeType, CloudFile parentFolder) throws CloudDriverException;
+
+    ByteArrayOutputStream getFileContents(CloudFile file) throws CloudDriverException;
 }

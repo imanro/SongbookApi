@@ -116,6 +116,7 @@ project(':songbook-common') {
         api ('com.google.api-client:google-api-client:1.30.6')
         api ('com.google.oauth-client:google-oauth-client-jetty:1.30.6')
         api ('com.google.apis:google-api-services-drive:v3-rev192-1.25.0')
+        api ('org.apache.pdfbox:pdfbox:2.0.11')
 
         implementation ('com.fasterxml.jackson.core:jackson-annotations:2.9.9')
         implementation ('mysql:mysql-connector-java:8.0.16')
