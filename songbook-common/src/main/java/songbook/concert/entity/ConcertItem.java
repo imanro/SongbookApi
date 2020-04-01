@@ -1,11 +1,8 @@
 package songbook.concert.entity;
-
 import songbook.song.entity.Song;
 import org.hibernate.annotations.*;
 import javax.persistence.*;
 import javax.persistence.Entity;
-import songbook.concert.view.Summary;
-import songbook.concert.view.Details;
 import com.fasterxml.jackson.annotation.*;
 import java.util.Date;
 
@@ -19,9 +16,10 @@ public class ConcertItem {
     @Column(name = "create_time")
     private Date createTime;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "song_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
+    // @MapsId
     private Song song;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -38,6 +36,7 @@ public class ConcertItem {
 
     @Column(name = "order_value")
     private int orderValue;
+
 
     public long getId() {
         return id;

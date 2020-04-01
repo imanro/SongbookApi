@@ -1,12 +1,15 @@
 package songbook.song.entity;
 
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.annotations.*;
 
 import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.OrderBy;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
+import songbook.song.view.HeaderSummary;
 import songbook.util.view.Summary;
 import songbook.song.view.Details;
 import songbook.tag.entity.Tag;
@@ -67,9 +70,15 @@ public class Song {
     private Set<Tag> tags = new HashSet<>();
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "song")
+    @Fetch(FetchMode.SUBSELECT)
     @OrderBy("isFavorite DESC")
     // @JsonManagedReference
-    @JsonView(Details.class)
+    @JsonView(HeaderSummary.class)
+
+    @Filters({
+            @Filter(name = "headerType"),
+            @Filter(name = "contentUser")
+    })
     private Set<SongContent> headers;
 
     @OneToMany(fetch = FetchType.LAZY,

@@ -36,12 +36,12 @@ public class ConcertController {
     @GetMapping("{id}")
     @JsonView(Details.class)
     @ResponseBody
-    public Concert findCocnertById(@PathVariable("id") long id){
+    public Concert findConcertById(@PathVariable("id") long id){
         System.out.println(id);
         User user = getDefaultUser();
 
         // + change on method findByIdAndUser
-        return concertDao.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "item not found"));
+        return concertDao.findByIdWithHeaders(id, user).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "item not found"));
     }
 
     @GetMapping("")

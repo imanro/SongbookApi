@@ -9,6 +9,8 @@ import java.util.Date;
 import com.fasterxml.jackson.annotation.*;
 
 @Entity
+@FilterDef(name="headerType", parameters=@ParamDef( name="type", type="string" ), defaultCondition ="type=:type")
+@FilterDef(name="contentUser", parameters=@ParamDef( name="userId", type="long" ), defaultCondition ="user_id=:userId")
 public class SongContent {
 
     @Id
