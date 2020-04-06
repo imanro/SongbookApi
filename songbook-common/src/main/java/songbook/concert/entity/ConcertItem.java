@@ -3,10 +3,37 @@ import songbook.song.entity.Song;
 import org.hibernate.annotations.*;
 import javax.persistence.*;
 import javax.persistence.Entity;
+import javax.persistence.NamedNativeQuery;
+import javax.persistence.Table;
+
 import com.fasterxml.jackson.annotation.*;
+import songbook.suggest.entity.SongStatProj;
+
 import java.util.Date;
 
 @Entity
+@Table(name = "concert_item")
+@SqlResultSetMapping(
+        name="pci",
+        entities={
+                @EntityResult(
+                        entityClass= ConcertItem.class,
+                        fields={
+                                @FieldResult(name="id", column = "ci.id"),
+                                @FieldResult(name="createTime", column = "ci.create_time"),
+                                @FieldResult(name="concert", column = "ci.concert_id"),
+                                @FieldResult(name="song", column = "ci.song_id"),
+                                @FieldResult(name="concertGroup", column = "ci.concert_group_id"),
+                                @FieldResult(name="orderValue", column = "ci.order_value")
+                        }
+                )
+        },
+        columns= {
+                @ColumnResult(name="total")
+        }
+
+)
+@NamedNativeQuery(name="ConcertItem.findPopularConcertItemss", query="SELECT count(1) total,  ci.* FROM concert_item ci GROUP BY ci.song_id", resultSetMapping = "pci")
 public class ConcertItem {
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)

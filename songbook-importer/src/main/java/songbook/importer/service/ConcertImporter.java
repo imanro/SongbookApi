@@ -52,10 +52,14 @@ public class ConcertImporter extends AbstractImporter {
             // we need to create trg concert
             Concert concert = new Concert();
             concert.setUser(user);
-            concert.setCreateTime(srcConcert.getCreateTime());
+
             concert.setTime(srcConcert.getTime());
             concert.setSbV1Id(srcConcert.getId());
 
+            concertTrgDao.save(concert);
+
+            // rewrite createtime
+            concert.setCreateTime(srcConcert.getCreateTime());
             concertTrgDao.save(concert);
 
             // then, we need to find src concert items for this concert... (by id)
@@ -75,9 +79,6 @@ public class ConcertImporter extends AbstractImporter {
 
                     // create concert item
                     ConcertItem concertItem = new ConcertItem();
-
-                    // fill it
-                    concertItem.setCreateTime(srcConcertItem.getCreateTime());
 
                     // set concert
                     concertItem.setConcert(concert);
@@ -111,6 +112,10 @@ public class ConcertImporter extends AbstractImporter {
                         }
                     }
 
+                    this.concertItemTrgDao.save(concertItem);
+
+                    // double save createTime to really save ite
+                    concertItem.setCreateTime(srcConcertItem.getCreateTime());
                     this.concertItemTrgDao.save(concertItem);
                     // store concert item :)))
                 }

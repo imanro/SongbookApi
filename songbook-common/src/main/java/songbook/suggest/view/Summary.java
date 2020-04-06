@@ -1,4 +1,4 @@
 package songbook.suggest.view;
 
-public interface Summary extends songbook.concert.view.Details {
+public interface Summary extends songbook.song.view.HeaderSummary, songbook.concert.view.Summary {
 }

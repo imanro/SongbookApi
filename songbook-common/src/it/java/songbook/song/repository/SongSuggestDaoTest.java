@@ -15,6 +15,7 @@ import songbook.concert.repository.ConcertItemDao;
 import songbook.song.entity.Song;
 import songbook.suggest.entity.SongStatProj;
 import songbook.suggest.repository.SongSuggestDao;
+import songbook.suggest.service.SongStatService;
 import songbook.user.entity.User;
 import songbook.user.repository.UserDao;
 import java.time.LocalDateTime;
@@ -40,6 +41,9 @@ public class SongSuggestDaoTest {
 
     @Autowired
     private UserDao userDao;
+
+    @Autowired
+    SongStatService songStatService;
 
     @BeforeEach
     void init() {
@@ -69,16 +73,21 @@ public class SongSuggestDaoTest {
 
         Pageable pageReq = new PageRequest(0, 10);
 
-        // Page<SongStat> items = songSuggestDao.findPopularConcertItems(user, pageReq);
-        List<SongStatProj> items = songSuggestDao.findPopularConcertItems();
+        Page<SongStatProj> items = songSuggestDao.findPopularConcertItems(pageReq);
 
-        // System.out.println("Total elements amount: " + items.getTotalElements());
+        // List<SongStatProj> content = items.getContent();
 
-        // SongStat item = items.get().findFirst().get();
+        List<Long> concertIds = songStatService.extractConcertIds(items);
 
-        // System.out.println("The song id is:" + item.getSong().getId());
+        Page<SongStatProj> newItems;
+        if(concertIds.size() > 0) {
+            List<Concert> concerts = concertDao.findAllById(concertIds);
+            newItems = songStatService.attachConcertsToStat(items, concerts, pageReq);
+        } else {
+            newItems = items;
+        }
 
-
+        // now, check that we have proper amount (total) and received attached concert
     }
 
     private User addUser(String email) {

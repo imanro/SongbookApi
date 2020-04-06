@@ -5,12 +5,16 @@ import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.web.bind.annotation.*;
+import songbook.concert.entity.Concert;
+import songbook.concert.repository.ConcertDao;
 import songbook.song.entity.SongContentTypeEnum;
+import songbook.suggest.entity.SongProj;
+import songbook.suggest.entity.SongStat;
 import songbook.suggest.entity.SongStatProj;
 import songbook.suggest.repository.SongSuggestDao;
+import songbook.suggest.service.SongStatService;
 import songbook.suggest.view.Summary;
 import songbook.user.entity.User;
 import songbook.user.repository.UserDao;
@@ -18,6 +22,10 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Date;
+import java.util.List;
 
 @RestController
 @RequestMapping("/song-suggest")
@@ -28,6 +36,13 @@ public class SongSuggestController {
 
     @Autowired
     private SongSuggestDao songSuggestDao;
+
+    @Autowired
+    private ConcertDao concertDao;
+
+    @Autowired
+    private SongStatService songStatService;
+
 
     @PersistenceContext
     private EntityManager em;
@@ -40,7 +55,29 @@ public class SongSuggestController {
     @JsonView(Summary.class)
     Page<SongStatProj> findPopularSongs(Pageable pageable) {
         initFilters();
-        return songSuggestDao.findPopularConcertItems(pageable);
+        Page<SongStatProj> items = songSuggestDao.findPopularConcertItems(pageable);
+
+        // hack: attaching concert entities manually
+        List<Long> concertIds = songStatService.extractConcertIds(items);
+        Page<SongStatProj> newItems;
+        if(concertIds.size() > 0) {
+            List<Concert> concerts = concertDao.findAllById(concertIds);
+            newItems = songStatService.attachConcertsToStat(items, concerts, pageable);
+        } else {
+            newItems = items;
+        }
+
+        return newItems;
+    }
+
+    @GetMapping("/recent/{fromDate}")
+    @JsonView(Summary.class)
+    Page<SongProj> findRecentSongs(
+            @PathVariable("fromDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
+            Pageable pageable
+    ) {
+        initFilters();
+        return songSuggestDao.findRecentSongs(pageable, convertToDate(fromDate));
     }
 
     private void initFilters() {
@@ -61,4 +98,9 @@ public class SongSuggestController {
     private Session getSession() {
         return em.unwrap(Session.class);
     }
+
+    private Date convertToDate(LocalDate localDate) {
+        return Date.from( localDate.atStartOfDay( ZoneId.systemDefault()).toInstant());
+    }
+
 }

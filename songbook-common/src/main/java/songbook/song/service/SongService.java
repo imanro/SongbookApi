@@ -2,6 +2,7 @@ package songbook.song.service;
 import songbook.cloud.entity.CloudFile;
 import songbook.song.entity.Song;
 import songbook.song.entity.SongContent;
+import songbook.suggest.entity.SongStatProj;
 import songbook.user.entity.User;
 
 import java.util.List;
