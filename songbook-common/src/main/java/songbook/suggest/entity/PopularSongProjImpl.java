@@ -3,7 +3,7 @@ package songbook.suggest.entity;
 import songbook.concert.entity.Concert;
 import songbook.song.entity.Song;
 
-public class SongStatProjImpl implements SongStatProj {
+public class PopularSongProjImpl implements PopularSongProj {
 
     private long total;
 
@@ -13,7 +13,7 @@ public class SongStatProjImpl implements SongStatProj {
 
     private Concert lastConcert;
 
-    public SongStatProjImpl(Song song, long total, long lastConcertId) {
+    public PopularSongProjImpl(Song song, long total, long lastConcertId) {
         this.setTotal(total);
         this.setSong(song);
         this.setLastConcertId(lastConcertId);
@@ -25,7 +25,7 @@ public class SongStatProjImpl implements SongStatProj {
     }
 
     @Override
-    public SongStatProj setTotal(long total) {
+    public PopularSongProj setTotal(long total) {
         this.total = total;
         return this;
     }
@@ -36,7 +36,7 @@ public class SongStatProjImpl implements SongStatProj {
     }
 
     @Override
-    public SongStatProj setLastConcertId(long id) {
+    public PopularSongProj setLastConcertId(long id) {
         this.lastConcertId = id;
         return this;
     }
@@ -47,7 +47,7 @@ public class SongStatProjImpl implements SongStatProj {
     }
 
     @Override
-    public SongStatProj setLastConcert(Concert concert) {
+    public PopularSongProj setLastConcert(Concert concert) {
         this.lastConcert = concert;
         return this;
     }
@@ -58,7 +58,7 @@ public class SongStatProjImpl implements SongStatProj {
     }
 
     @Override
-    public SongStatProj setSong(Song song) {
+    public PopularSongProj setSong(Song song) {
         this.song = song;
         return this;
     }

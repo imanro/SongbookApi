@@ -9,18 +9,14 @@ import javax.persistence.OrderBy;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
+import songbook.common.entity.BaseEntity;
 import songbook.song.view.HeaderSummary;
 import songbook.util.view.Summary;
 import songbook.song.view.Details;
 import songbook.tag.entity.Tag;
 
 @Entity
-public class Song {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @JsonView(Summary.class)
-    private long id;
+public class Song extends BaseEntity {
 
     // This is "cannonical" title of song
     // User titles is stored in SongContent[type=HEADER]
@@ -90,15 +86,6 @@ public class Song {
             }*/)
     @JsonView(Details.class)
     private Set<SongContent> content;
-
-    public long getId() {
-        return id;
-    }
-
-    public Song setId(long id) {
-        this.id = id;
-        return this;
-    }
 
     public String getTitle() {
         return title;

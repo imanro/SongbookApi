@@ -47,7 +47,7 @@ class SongDaoTest {
 
     // @Test
     void saveSong() {
-        song.setId(111);
+        song.setId(111L);
         songDao.save(song);
         // assertEquals(111, song.getId(), "The assigned id is not match to that expected");
     }
@@ -110,7 +110,7 @@ class SongDaoTest {
         songContentDao.save(strangeUserHeader);
         songContentDao.save(anothersSongHeader);
 
-        Optional<Song> foundSongOpt = songDao.findByIdWithHeaders(song.getId(), user);
+        Optional<Song> foundSongOpt = songDao.findByIdWithHeaders(song.getId());
         assertTrue(foundSongOpt.isPresent(), "The song is not found");
 
         Song foundSong = foundSongOpt.get();
@@ -196,7 +196,7 @@ class SongDaoTest {
         songContentDao.save(song2Header1);
         songContentDao.save(song2FavoriteHeader);
 
-        List<Song> foundSongs = songDao.findAllWithHeaders(user);
+        List<Song> foundSongs = songDao.findAllWithHeaders();
 
         assertEquals(2, foundSongs.size(), "The size is wrong");
 

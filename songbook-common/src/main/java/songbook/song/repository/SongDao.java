@@ -31,68 +31,38 @@ public interface SongDao extends JpaRepository<Song, Long>, SongDaoCustom {
     // headers should be always connected to certain user. when adding song into account, define procedure to copy headers from another user accounts to this
     @Query("SELECT e FROM Song e " +
             "LEFT JOIN FETCH e.headers h " +
-            "WHERE e.id=:id AND h.type=songbook.song.entity.SongContentTypeEnum.HEADER AND h.user=:user")
+            "WHERE e.id=:id")
     Optional<Song> findByIdWithHeaders(
-            @Param("id") long songID,
-            @Param("user") User user
+            @Param("id") long songID
     );
 
     @Query("SELECT distinct e FROM Song e " +
             "LEFT JOIN FETCH e.headers h " +
             "WHERE h.type=songbook.song.entity.SongContentTypeEnum.HEADER AND h.user=:user")
-    List<Song> findAllWithHeaders(
-            @Param("user") User user
-    );
+    List<Song> findAllWithHeaders();
 
     @Query(
             value="SELECT distinct e FROM Song e " +
-            "LEFT JOIN FETCH e.headers h " +
-            "WHERE h.type=songbook.song.entity.SongContentTypeEnum.HEADER AND h.user=:user",
+            "LEFT JOIN FETCH e.headers h ",
             countQuery="SELECT distinct e FROM Song e ")
     Page<Song> findAllWithHeaders(
-            @Param("user") User user,
             Pageable pageable
     );
 
     @Query("SELECT distinct e FROM Song e " +
             "LEFT JOIN FETCH e.headers h " +
-            "WHERE h.type=songbook.song.entity.SongContentTypeEnum.HEADER AND h.user=:user AND h.content LIKE '%' || :searchString || '%'")
+            "WHERE h.content LIKE '%' || :searchString || '%'")
     List<Song> findAllByHeaderWithHeaders(
-            @Param("searchString") String searchString,
-            @Param("user") User user
+            @Param("searchString") String searchString
     );
 
     @Query(value="SELECT distinct e FROM Song e " +
             "LEFT JOIN FETCH e.headers h " +
-            "WHERE h.type=songbook.song.entity.SongContentTypeEnum.HEADER AND h.user=:user AND h.content LIKE '%' || :searchString || '%'",
-    countQuery="SELECT count(e) FROM Song e LEFT JOIN e.headers h WHERE h.type=songbook.song.entity.SongContentTypeEnum.HEADER AND h.user=:user AND h.content LIKE '%' || :searchString || '%'")
+            "WHERE h.content LIKE '%' || :searchString || '%'",
+    countQuery="SELECT count(e) FROM Song e LEFT JOIN e.headers h WHERE h.content LIKE '%' || :searchString || '%'")
     Page<Song> findAllByHeaderWithHeaders(
             @Param("searchString") String searchString,
-            @Param("user") User user,
             Pageable pageable
     );
     Song findBySbV1Id(int sbV1Id);
-
-    /*
-    @Query("SELECT e FROM Song e " +
-            "INNER JOIN FETCH e.header h " +
-            "WHERE h.type=songbook.song.entity.SongContentTypeEnum.HEADER AND h.user=:user AND h.content LIKE %:string% ORDER BY h.isFavorite")
-    List<Song> findByHeaderWithHeaders(
-            @Param("string") String string,
-            @Param("user") User user
-    );
-    */
-
-    /*
-    SELECT
-   song.`title`,
-   song.`id`,
-   song_content.content,
-   song_content.song_id
-FROM `song`
-LEFT JOIN `song_content`
-ON song_content.id = (
-  SELECT id FROM `song_content` WHERE type='HEADER' AND song_id = song.id ORDER BY is_favorite DESC LIMIT 1
-)
-     */
 }

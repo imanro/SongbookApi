@@ -1,15 +1,20 @@
 package songbook.song.rest;
 
 import com.fasterxml.jackson.annotation.JsonView;
+import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+import songbook.common.controller.BaseController;
 import songbook.song.entity.Song;
+import songbook.song.entity.SongContentTypeEnum;
 import songbook.song.service.SongService;
 import songbook.song.service.SongServiceException;
+import songbook.song.view.Details;
+import songbook.song.view.HeaderSummary;
 import songbook.song.view.Summary;
 import songbook.tag.entity.Tag;
 import songbook.tag.repository.TagDao;
@@ -17,11 +22,13 @@ import songbook.user.entity.User;
 import songbook.song.repository.SongDao;
 import songbook.user.repository.UserDao;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.util.Optional;
 
 @RestController
 @RequestMapping("/song")
-public class SongController {
+public class SongController extends BaseController {
 
     @Autowired
     private SongDao songDao;
@@ -35,20 +42,21 @@ public class SongController {
     @Autowired
     private SongService songService;
 
+    @PersistenceContext
+    private EntityManager em;
+
     @GetMapping("{id}")
     @ResponseBody
     public Song getSongById(@PathVariable("id") long id){
-        User user = getDefaultUser();
-        return songDao.findByIdWithHeaders(id, user).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "item not found"));
+        initFilters();
+        return songDao.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "item not found"));
     }
 
 
     @GetMapping("")
-    @JsonView(Summary.class)
+    @JsonView(HeaderSummary.class)
     public Page<Song> findSongsByHeader(@RequestParam(required = false, name = "search") String search, Pageable pageable) throws ResponseStatusException {
-        System.out.println(pageable.getOffset() + " offset");
-        System.out.println(pageable.getPageSize() + " size");
-        User user = getDefaultUser();
+        initFilters();
 
         if (search == null || search.length() < 2) {
             Page<Song> page = songDao.findAll(pageable);
@@ -56,15 +64,17 @@ public class SongController {
             return page;
 
         } else {
-            return songDao.findAllByHeaderWithHeaders(search, user, pageable);
+            return songDao.findAllByHeaderWithHeaders(search, pageable);
         }
     }
 
     @PostMapping("{songId}/tags/{tagId}")
+    @JsonView(Details.class)
     public Song attachSongToTag(@PathVariable("songId") long songId, @PathVariable("tagId") long tagId) throws ResponseStatusException {
+        initFilters();
         // search for song with such id
-        User user = getDefaultUser();
-        Optional<Song> songOpt = songDao.findByIdWithHeaders(songId, user);
+
+        Optional<Song> songOpt = songDao.findById(songId);
         if(!songOpt.isPresent()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Song is not found");
         }
@@ -84,7 +94,7 @@ public class SongController {
         System.out.println("re-read the song");
         songDao.refresh(song);
         // to return tags in right order, re-read the song
-        Optional<Song> songOptUpdated = songDao.findByIdWithHeaders(songId, user);
+        Optional<Song> songOptUpdated = songDao.findById(songId);
         if(!songOptUpdated.isPresent()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Song is not found");
         }
@@ -93,7 +103,9 @@ public class SongController {
     }
 
     @DeleteMapping("{songId}/tags/{tagId}")
+    @JsonView(Details.class)
     public Song detachSongFromTag(@PathVariable("songId") long songId, @PathVariable("tagId") long tagId) throws ResponseStatusException {
+        initFilters();
         // search for song with such id
         Optional<Song> songOpt = songDao.findById(songId);
         if(!songOpt.isPresent()) {
@@ -116,9 +128,10 @@ public class SongController {
     }
 
     @PatchMapping("syncCloudContent/{songId}")
+    @JsonView(Details.class)
     public Song syncSongContent(@PathVariable("songId") long songId) throws ResponseStatusException  {
         User user = getDefaultUser();
-        Song song = songDao.findByIdWithHeaders(songId, user).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "item not found"));
+        Song song = songDao.findByIdWithHeaders(songId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "item not found"));
 
         // + the problem is with auto ids in google drive - we should preserve old ids in the new db
 
@@ -134,8 +147,12 @@ public class SongController {
         return updatedSong;
     }
 
-    private User getDefaultUser() {
-        long defaultId = 1;
-        return userDao.getOne(defaultId);
+    private void initFilters() {
+        User user = getDefaultUser();
+
+        Session session = getSession();
+        session.enableFilter("headerType").setParameter("type", SongContentTypeEnum.HEADER.toString());
+        session.enableFilter("contentUser").setParameter("userId", user.getId());
     }
+
 }

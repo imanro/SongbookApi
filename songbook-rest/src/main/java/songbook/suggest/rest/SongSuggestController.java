@@ -6,30 +6,35 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
+import songbook.common.controller.BaseController;
 import songbook.concert.entity.Concert;
 import songbook.concert.repository.ConcertDao;
+import songbook.song.entity.Song;
 import songbook.song.entity.SongContentTypeEnum;
+import songbook.song.repository.SongDao;
+import songbook.suggest.entity.SongCountProj;
 import songbook.suggest.entity.SongProj;
-import songbook.suggest.entity.SongStat;
-import songbook.suggest.entity.SongStatProj;
+import songbook.suggest.entity.PopularSongProj;
 import songbook.suggest.repository.SongSuggestDao;
 import songbook.suggest.service.SongStatService;
 import songbook.suggest.view.Summary;
 import songbook.user.entity.User;
 import songbook.user.repository.UserDao;
 import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/song-suggest")
-public class SongSuggestController {
+public class SongSuggestController extends BaseController  {
 
     @Autowired
     private UserDao userDao;
@@ -41,25 +46,25 @@ public class SongSuggestController {
     private ConcertDao concertDao;
 
     @Autowired
-    private SongStatService songStatService;
+    private SongDao songDao;
 
+    @Autowired
+    private SongStatService songStatService;
 
     @PersistenceContext
     private EntityManager em;
 
-    @Autowired
-    private EntityManagerFactory emf;
-
-
     @GetMapping("/popular")
     @JsonView(Summary.class)
-    Page<SongStatProj> findPopularSongs(Pageable pageable) {
+    Page<PopularSongProj> findPopularSongs(Pageable pageable) {
         initFilters();
-        Page<SongStatProj> items = songSuggestDao.findPopularConcertItems(pageable);
+
+        User user = getDefaultUser();
+        Page<PopularSongProj> items = songSuggestDao.findPopularConcertItems(pageable, user);
 
         // hack: attaching concert entities manually
         List<Long> concertIds = songStatService.extractConcertIds(items);
-        Page<SongStatProj> newItems;
+        Page<PopularSongProj> newItems;
         if(concertIds.size() > 0) {
             List<Concert> concerts = concertDao.findAllById(concertIds);
             newItems = songStatService.attachConcertsToStat(items, concerts, pageable);
@@ -77,7 +82,48 @@ public class SongSuggestController {
             Pageable pageable
     ) {
         initFilters();
-        return songSuggestDao.findRecentSongs(pageable, convertToDate(fromDate));
+        User user = getDefaultUser();
+        return songSuggestDao.findRecentSongs(pageable, user, convertToDate(fromDate));
+    }
+
+    @GetMapping("/abandoned/{fromDate}")
+    @JsonView(Summary.class)
+    Page<SongCountProj> findAbandonedSongs(
+            @PathVariable("fromDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
+            @RequestParam(required = false) Optional<Long> performancesThreshold,
+            Pageable pageable
+    ) {
+        initFilters();
+        User user = getDefaultUser();
+
+        long performancesAmount = performancesThreshold.orElse(1L);
+        return songSuggestDao.findAbandonedSongs(pageable, user, convertToDate(fromDate), performancesAmount);
+    }
+
+    @GetMapping("/before/{id}")
+    @JsonView(Summary.class)
+    Page<SongProj> findSongsBefore(
+            @PathVariable("id") long songId,
+            Pageable pageable
+    ) throws ResponseStatusException {
+        initFilters();
+        User user = getDefaultUser();
+
+        Song sampleSong = songDao.findById(songId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "The sample song was not found"));
+        return songSuggestDao.findSongsBefore(pageable, user, sampleSong);
+    }
+
+    @GetMapping("/after/{id}")
+    @JsonView(Summary.class)
+    Page<SongProj> findSongsAfter(
+            @PathVariable("id") long songId,
+            Pageable pageable
+    ) throws ResponseStatusException {
+        initFilters();
+        User user = getDefaultUser();
+
+        Song sampleSong = songDao.findById(songId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "The sample song was not found"));
+        return songSuggestDao.findSongsAfter(pageable, user, sampleSong);
     }
 
     private void initFilters() {
@@ -86,17 +132,6 @@ public class SongSuggestController {
         Session session = getSession();
         session.enableFilter("headerType").setParameter("type", SongContentTypeEnum.HEADER.toString());
         session.enableFilter("contentUser").setParameter("userId", user.getId());
-    }
-
-
-    private User getDefaultUser() {
-        long defaultId = 1;
-        return userDao.getOne(defaultId);
-    }
-
-    @Transactional
-    private Session getSession() {
-        return em.unwrap(Session.class);
     }
 
     private Date convertToDate(LocalDate localDate) {

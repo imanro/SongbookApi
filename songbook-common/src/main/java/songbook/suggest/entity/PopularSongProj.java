@@ -9,24 +9,24 @@ import songbook.song.entity.Song;
 
 // Using DTO with constructors will cause N+1 queries (
 // Using native query has disadvantege
-public interface SongStatProj {
+public interface PopularSongProj {
 
     long getTotal();
 
-    SongStatProj setTotal(long total);
+    PopularSongProj setTotal(long total);
 
     @Value("#{target.get(\"lastConcert\").id}")
     Long getLastConcertId();
 
-    SongStatProj setLastConcertId(long id);
+    PopularSongProj setLastConcertId(long id);
 
     Concert getLastConcert();
 
-    SongStatProj setLastConcert(Concert concert);
+    PopularSongProj setLastConcert(Concert concert);
 
     // Jooo, i've found it (if we have multiple results in select then) target is of type TupletBackedMap)
     // @Value("#{target.get(\"entity\").song}")
     Song getSong();
 
-    SongStatProj setSong(Song song);
+    PopularSongProj setSong(Song song);
 }

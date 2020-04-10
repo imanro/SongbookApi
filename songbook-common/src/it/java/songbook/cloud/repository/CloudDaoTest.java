@@ -26,7 +26,7 @@ class CloudDaoTest {
     @Test
     void throwsExceptionWhenRootFolderIsNotSet() {
         Song song = new Song();
-        song.setId(2);
+        song.setId(2L);
 
         Assertions.assertThrows(CloudException.class, () -> {
             List<CloudFile> files = cloudDao.getSongFiles(song);
@@ -57,7 +57,7 @@ class CloudDaoTest {
     void canReadSongFilesFolderDontExists() {
         int rand = getRandom();
         Song song = new Song();
-        song.setId(rand);
+        song.setId(Long.valueOf(rand));
 
         List<CloudFile> files;
 
@@ -126,7 +126,7 @@ class CloudDaoTest {
         return (int)(Math.random() * (max - min + 1) + min);
     }
 
-    private int getExistingSongId() {
-        return 2;
+    private Long getExistingSongId() {
+        return 2L;
     }
 }

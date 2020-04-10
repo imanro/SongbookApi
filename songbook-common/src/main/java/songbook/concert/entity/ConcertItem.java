@@ -7,7 +7,6 @@ import javax.persistence.NamedNativeQuery;
 import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.*;
-import songbook.suggest.entity.SongStatProj;
 
 import java.util.Date;
 
@@ -43,7 +42,7 @@ public class ConcertItem {
     @Column(name = "create_time")
     private Date createTime;
 
-    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "song_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     // @MapsId
