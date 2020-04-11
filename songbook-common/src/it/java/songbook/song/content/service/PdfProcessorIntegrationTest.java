@@ -69,6 +69,6 @@ public class PdfProcessorIntegrationTest {
     }
 
     private File getTmpDir() throws FileException {
-        return tmpResourceResolver.getRandomTmpDirName();
+        return tmpResourceResolver.getTmpDir();
     }
 }

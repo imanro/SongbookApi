@@ -12,7 +12,7 @@ public class TmpResourceResolver {
     @Autowired
     FileProperties properties;
 
-    public File getRandomTmpDirName() throws FileException {
+    public File getTmpDir() throws FileException {
 
         String rootTmpDir;
         try {
