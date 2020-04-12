@@ -53,9 +53,7 @@ public class PdfProcessorIntegrationTest {
 
         tmpDir.mkdir();
 
-        String tmpFileName = tmpResourceResolver.getFileNameBasedOnRandomNumber() + ".pdf";
-
-        String path = tmpDir.getAbsolutePath() + "/" + tmpFileName;
+        String path = tmpResourceResolver.createRandomTmpFileName(tmpDir);
 
         try (FileOutputStream stream = new FileOutputStream(path)) {
             stream.write(bytes);
@@ -69,6 +67,6 @@ public class PdfProcessorIntegrationTest {
     }
 
     private File getTmpDir() throws FileException {
-        return tmpResourceResolver.getTmpDir();
+        return tmpResourceResolver.createRandomTmpDir();
     }
 }

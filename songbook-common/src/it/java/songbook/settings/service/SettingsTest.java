@@ -65,14 +65,8 @@ public class SettingsTest extends BaseIt  {
         Assertions.assertEquals("defaultValueServerName", settings.getValue("serverNameGgg", strangerUser, "defaultValueServerName"));
     }
 
-    private Setting addSetting(String name, String value, User user) {
-        Setting setting = new Setting()
-                .setName(name)
-                .setValue(value)
-                .setUser(user);
-
-        settingsDao.save(setting);
-        return setting;
+    private void addSetting(String name, String value, User user) {
+        settings.setValue(name, value, user);
     }
 
 }

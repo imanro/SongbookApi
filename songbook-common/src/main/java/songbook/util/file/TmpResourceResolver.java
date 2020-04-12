@@ -12,33 +12,48 @@ public class TmpResourceResolver {
     @Autowired
     FileProperties properties;
 
-    public File getTmpDir() throws FileException {
+    public String createRandomTmpFileName(File tmpDir) throws FileException {
+        final int limit = 10;
+        int counter = 0;
+        String tmpFileName;
+        File checkFile;
 
-        String rootTmpDir;
+        do {
+            tmpFileName = tmpDir.getAbsolutePath() + "/" + getFileNameBasedOnRandomNumber();
+            checkFile = new File(tmpFileName);
+
+        } while(checkFile.exists() && counter++ < limit);
+
+        if(!checkFile.exists()) {
+            return tmpFileName;
+        } else {
+            throw new FileException("Unable to generate free resource name");
+        }
+    }
+
+    public File createRandomTmpDir() throws FileException {
+
+        String rootTmpDirName;
         try {
-             rootTmpDir = properties.getTmpDirFsPath();
+             rootTmpDirName = properties.getTmpDirFsPath();
         } catch (Exception e) {
             throw new FileException("Unable to get rootTmpDir name from properties", e);
         }
 
-        File tmpDir;
-        final int limit = 10;
-        int counter = 0;
+        File rootTmpDir = new File(rootTmpDirName);
 
-        do {
-            String tmpDirName = rootTmpDir + "/" + getFileNameBasedOnRandomNumber();
-            tmpDir = new File(tmpDirName);
+        String tmpDirName = createRandomTmpFileName(rootTmpDir);
 
-        } while(tmpDir.exists() && counter++ < limit);
+        File tmpDir = new File(tmpDirName);
 
-        if(!tmpDir.exists()) {
-            return tmpDir;
-        } else {
-            throw new FileException("Unable to generate free tmp dir name");
+        if (!tmpDir.mkdir() ) {
+            throw new FileException("Cannot create the tmp dir \"" + tmpDirName + "\"!");
         }
+
+        return tmpDir;
     }
 
-    public String getFileNameBasedOnRandomNumber() {
+    private String getFileNameBasedOnRandomNumber() {
         return String.valueOf(getRandom());
     }
 

@@ -22,6 +22,17 @@ public class Settings {
         this.storage = new HashMap<>();
     }
 
+    public Settings setValue(String name, String value, User user) {
+        Setting setting = new Setting()
+                .setName(name)
+                .setValue(value)
+                .setUser(user);
+
+        settingDao.save(setting);
+
+        return this;
+    }
+
     public String getValue(String name, User user, String defaultValue) {
         if (!storage.containsKey(user.getId())) {
             fetchSettingsForUser(user);
