@@ -27,7 +27,7 @@ public class TmpDirStorage {
         files = new ArrayList<>();
     }
 
-    FileHolder storeByteContent(byte[] contents, String originalFileName) throws FileException {
+    public FileHolder storeByteContent(byte[] contents, String originalFileName) throws FileException {
 
         String tmpFileName = resolver.createRandomTmpFileName(tmpDir);
         File file = new File(tmpFileName);

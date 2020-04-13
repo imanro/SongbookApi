@@ -5,28 +5,31 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import songbook.common.BaseIt;
-import songbook.settings.entity.Setting;
 import songbook.settings.repository.SettingDao;
 import songbook.user.entity.User;
 import org.junit.jupiter.api.Assertions;
 
+
 @SpringBootTest
-public class SettingsTest extends BaseIt  {
+public class SettingsIntegrationTest extends BaseIt  {
 
     @Autowired
-    private SettingDao settingsDao;
+    private Settings settingsDao;
 
     @Autowired
     private Settings settings;
 
+    @Autowired
+    private SettingDao settingsDaoReal;
+
     @BeforeEach
     void cleanAll() {
-        settingsDao.deleteAll();
+        settingsDaoReal.deleteAll();
         userDao.deleteAll();
     }
 
     @Test
-    void settingCanBeRead() {
+    void settingCanBeRead() throws SettingsException {
         // init user through dao
         User user = addUser("nobody@example.com");
         User strangerUser = addUser("nobody2@example.com");
@@ -46,7 +49,7 @@ public class SettingsTest extends BaseIt  {
     }
 
     @Test
-    void canFallBackToDefaultSettingValue() {
+    void canFallBackToDefaultSettingValue() throws SettingsException {
         // init user through dao
         User user = addUser("nobody@example.com");
         User strangerUser = addUser("nobody2@example.com");
