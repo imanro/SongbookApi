@@ -1,4 +1,4 @@
-package songbook.sharing.service.configuration;
+package songbook.sharing.configuration;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,10 +19,10 @@ public class SharingProperties {
 
     @Autowired // checkme is it needed
     public SharingProperties(
-            @Value("${sharing.mail.smtp.host}") String mailSmtpHost,
-            @Value("${sharing.mail.smtp.port}") String mailSmtpPort,
-            @Value("${sharing.mail.auth.username}") String mailAuthUsername,
-            @Value("${sharing.mail.auth.password}") String mailAuthPassword
+            @Value("${sharing.provider.mail.smtp.host}") String mailSmtpHost,
+            @Value("${sharing.provider.mail.smtp.port}") String mailSmtpPort,
+            @Value("${sharing.provider.mail.auth.username}") String mailAuthUsername,
+            @Value("${sharing.provider.mail.auth.password}") String mailAuthPassword
     ) {
         this.mailSmtpHost = mailSmtpHost;
         this.mailSmtpPort = mailSmtpPort;

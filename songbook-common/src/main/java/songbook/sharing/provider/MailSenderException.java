@@ -1,4 +1,4 @@
-package songbook.sharing.service;
+package songbook.sharing.provider;
 
 public class MailSenderException extends Exception {
     public MailSenderException() {

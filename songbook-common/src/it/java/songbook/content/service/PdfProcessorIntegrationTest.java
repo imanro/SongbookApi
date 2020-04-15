@@ -1,4 +1,4 @@
-package songbook.song.content.service;
+package songbook.content.service;
 
 import org.junit.jupiter.api.Assertions;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,9 +20,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 @SpringBootTest
+// maybe, wrong idea because beans depents on each other, so many different properties should be provided in a row, its better to keep them all in application.properties, isn't it?
 @TestPropertySource(locations = "/cloud-dao.properties")
+// To avoid mapping errors of errors, another name
 public class PdfProcessorIntegrationTest {
-    // To avoid mapping errors of errors, another name
+
     @Autowired
     private PdfProcessor pdfProcessor;
 
@@ -53,7 +55,7 @@ public class PdfProcessorIntegrationTest {
 
         tmpDir.mkdir();
 
-        String path = tmpResourceResolver.createRandomTmpFileName(tmpDir);
+        String path = tmpResourceResolver.createRandomTmpFileName(tmpDir) + ".pdf";
 
         try (FileOutputStream stream = new FileOutputStream(path)) {
             stream.write(bytes);

@@ -5,22 +5,29 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import songbook.cloud.CloudException;
 import songbook.cloud.entity.CloudFile;
 import songbook.cloud.repository.CloudDao;
+import songbook.content.service.ContentService;
+import songbook.content.service.ContentServiceException;
 import songbook.content.service.PdfProcessor;
 import songbook.content.service.PdfProcessorException;
 import songbook.song.entity.SongContent;
 import songbook.song.entity.SongContentTypeEnum;
 import songbook.song.service.SongService;
 import songbook.song.service.SongServiceException;
+import songbook.util.file.TmpDirStorage;
+import songbook.util.file.entity.FileHolder;
 
 import static org.mockito.Mockito.*;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 // @ActiveProfiles("test")
@@ -36,67 +43,64 @@ public class PdfProcessorTest {
     @Mock
     CloudDao cloudDao;
 
+    @Mock
+    ContentService contentService;
+
+
     @Spy
     @InjectMocks // this way to not use it approach
     private PdfProcessor pdfProcessor;
 
     // Positive tests
     @Test
-    void pdfCompileShouldDownloadFiles() throws SongServiceException, CloudException, PdfProcessorException {
+    void pdfCompileShouldDownloadFiles() throws PdfProcessorException, ContentServiceException {
 
         int amountOfPdfs = 2;
 
         List<SongContent> contents = this.getSongContentsWithPdf(amountOfPdfs);
 
-        CloudFile cloudFile = new CloudFile();
+        // CloudFile cloudFile = new CloudFile();
+        // when(songService.createCloudContentFromSongContent(any())).thenReturn(cloudFile);
 
-        when(songService.createCloudContentFromSongContent(any())).thenReturn(cloudFile);
+        // mocking tmpStorage with one file to continue executing
+        File file = Mockito.mock(File.class);
+        String fileName = "fileName";
+        FileHolder fileHolder = new FileHolder(file, fileName);
 
-        ByteArrayOutputStream bs = new ByteArrayOutputStream();
-        when(cloudDao.getFileContents(any())).thenReturn(bs);
+        TmpDirStorage storage = Mockito.mock(TmpDirStorage.class);
+        when(storage.getFiles()).thenReturn(new ArrayList<>(Arrays.asList(fileHolder)));
+
+        // mocking content behavior
+        when(contentService.downloadSongContent(any(), any())).thenReturn(storage);
 
         PDDocument document = new PDDocument();
 
         doReturn(document).when(pdfProcessor).loadPdf(any());
 
-        // when(pdfProcessor.loadPdf(any())).thenReturn(document);
-
         pdfProcessor.pdfCompile(contents);
 
-        verify(cloudDao, times(amountOfPdfs)).getFileContents(any());
+        verify(contentService).downloadSongContent(any(), any());
     }
 
     // Negative tests
     @Test
-    void pdfCompileWillThrowAnExceptionIfTheresNoMatchedFiles() {
+    void pdfCompileWillThrowAnExceptionIfTheresNoMatchedFiles() throws ContentServiceException {
 
         List<SongContent> notValidSongContents = this.getSongContentsWithoutPdf();
+
+        TmpDirStorage storage = Mockito.mock(TmpDirStorage.class);
+        when(contentService.downloadSongContent(any(), any())).thenReturn(storage);
 
         Assertions.assertThrows(PdfProcessorException.class, () -> pdfProcessor.pdfCompile(notValidSongContents),
                 "The exception wasn't thrown");
     }
 
     @Test
-    void pdfCompileInabilityToCreateCloudFileShouldThrowAnException() throws SongServiceException {
+    void pdfCompileInabilityToDownloadSongContentShouldThrowAnException() throws ContentServiceException {
 
         List<SongContent> contents = this.getSongContentsWithPdf();
 
-        when(songService.createCloudContentFromSongContent(any())).thenThrow(SongServiceException.class);
-
-        Assertions.assertThrows(PdfProcessorException.class, () -> pdfProcessor.pdfCompile(contents),
-                "The exception wasn't thrown");
-    }
-
-    @Test
-    void pdfCompileInabilityToDownloadSongContentShouldThrowAnException() throws SongServiceException, CloudException {
-
-        List<SongContent> contents = this.getSongContentsWithPdf();
-
-        CloudFile cloudFile = new CloudFile();
-
-        when(songService.createCloudContentFromSongContent(any())).thenReturn(cloudFile);
-
-        when(cloudDao.getFileContents(any())).thenThrow(CloudException.class);
+        when(contentService.downloadSongContent(any(), any())).thenThrow(ContentServiceException.class);
 
         Assertions.assertThrows(PdfProcessorException.class, () -> pdfProcessor.pdfCompile(contents),
                 "The exception wasn't thrown");

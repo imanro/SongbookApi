@@ -1,13 +1,12 @@
-package songbook.sharing.service;
+package songbook.sharing.provider;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import songbook.settings.service.Settings;
 import songbook.settings.service.SettingsException;
-import songbook.sharing.service.configuration.SharingProperties;
-import songbook.sharing.service.configuration.SharingSettings;
+import songbook.sharing.configuration.SharingProperties;
+import songbook.sharing.configuration.SharingSettings;
 import songbook.song.entity.SongContent;
-import songbook.song.entity.SongContentTypeEnum;
 import songbook.user.entity.User;
 import songbook.util.file.entity.FileHolder;
 
@@ -31,7 +30,7 @@ public class MailSender {
 
     private Session mailSession;
 
-    public MimeMessage createContentMail(String recipients, String subject, String body, User user, List<FileHolder> files, List<SongContent> contents) throws MailSenderException {
+    public MimeMessage createContentMail(String recipients, String subject, String body, User user, List<FileHolder> files) throws MailSenderException {
 
         SharingSettings userSettings = new SharingSettings(user, settingsService);
         MimeMessage message = new MimeMessage(getMailSession());
@@ -63,9 +62,6 @@ public class MailSender {
 
         Multipart multipart = new MimeMultipart();
 
-        // Replacing placeholder in the body part
-        body = body.replaceFirst(getFileListPlaceholder(), getContentLinks(contents));
-
         try {
             MimeBodyPart textBodyPart = new MimeBodyPart();
             textBodyPart.setText(body);
@@ -74,7 +70,7 @@ public class MailSender {
             throw new MailSenderException("An exception has occurred when adding the message body", e);
         }
 
-        // adding rest of files
+        // adding files
         addDownloadedFiles(files, multipart);
 
         try {
@@ -109,33 +105,6 @@ public class MailSender {
                 throw new MailSenderException("An error has occurred when adding a body part", e);
             }
         }
-    }
-
-    private String getContentLinks(List<SongContent> contents) throws MailSenderException {
-
-        List<String> lines = new ArrayList<>();
-
-        for (SongContent content : contents) {
-            switch(content.getType()) {
-                case LINK:
-                default:
-                    lines.add(content.getContent());
-                    break;
-                case GDRIVE_CLOUD_FILE:
-                    lines.add(getGdriveLinkPrefix() + content.getContent());
-                    break;
-            }
-        }
-
-        return String.join("\n", lines);
-    }
-
-    private String getGdriveLinkPrefix() {
-        return "https://drive.google.com/open?id=";
-    }
-
-    private String getFileListPlaceholder() {
-        return "%fileList%";
     }
 
     private void initMailSession() {

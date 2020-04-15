@@ -1,4 +1,4 @@
-package songbook.sharing.service.configuration;
+package songbook.sharing.configuration;
 
 public class SharingSettingsException extends Exception {
     public SharingSettingsException() {

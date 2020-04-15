@@ -10,13 +10,17 @@ import songbook.cloud.entity.CloudFile;
 import songbook.cloud.repository.CloudDao;
 import songbook.song.entity.SongContent;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import songbook.song.entity.SongContentTypeEnum;
 import songbook.song.service.SongService;
 import songbook.song.service.SongServiceException;
+import songbook.util.file.TmpDirStorage;
+import songbook.util.file.entity.FileHolder;
 
 @Service
 public class PdfProcessor {
@@ -27,6 +31,9 @@ public class PdfProcessor {
     @Autowired
     SongService songService;
 
+    @Autowired
+    ContentService contentService;
+
     private final String pdfMimeType = "application/pdf";
 
     public byte[] pdfCompile(List<SongContent> songContents) throws PdfProcessorException {
@@ -34,53 +41,33 @@ public class PdfProcessor {
         // create stream from this list
         // filter songContent to leave only cloud and mimeType=pdf
 
-        List<SongContent> needleContents = songContents.stream().filter(songContent -> {
-            return songContent.getType() == SongContentTypeEnum.GDRIVE_CLOUD_FILE &&
-                    songContent.getMimeType().equals(this.pdfMimeType);
-        }).collect(Collectors.toList());
+        Predicate<SongContent> byMimeType = songContent -> songContent.getMimeType().equals("application/pdf");
+
+        TmpDirStorage storage;
+        try {
+            storage = contentService.downloadSongContent(songContents, byMimeType);
+        } catch(ContentServiceException e) {
+            throw new PdfProcessorException("Unable to download song content due to exception", e);
+        }
 
         // if no files left - throw an exception - UT1
-        if(needleContents.size() == 0) {
+        if(storage.getFiles().size() == 0) {
             throw new PdfProcessorException("There's no PDFs in song contents list");
         }
 
+        // maybe, we should move this to some common place
+
         // Read cloud files first
-        List<byte[]> pdfContents = new ArrayList();
-
-        for (SongContent content : needleContents) {
-            // enhanced for
-
-            CloudFile cloudFile;
-
-            // UT 2 - unable to create cloudContent
-            try {
-                cloudFile = songService.createCloudContentFromSongContent(content);
-            } catch (SongServiceException e) {
-                throw new PdfProcessorException("Unable to create PDF, an exception occurred when creating cloud file", e);
-            }
-
-            ByteArrayOutputStream bs;
-
-            // UT 3 - unable to download file
-            try {
-                bs = cloudDao.getFileContents(cloudFile);
-            } catch (CloudException e) {
-                throw new PdfProcessorException("Unable to create PDF, an exception occurred when downloading a content", e);
-            }
-
-            byte[] byteContent = bs.toByteArray();
-            pdfContents.add(byteContent);
-        }
 
         // Now, create target document
         // PDDocument outDocument = new PDDocument(MemoryUsageSetting.setupTempFileOnly());
         PDDocument outDocument = new PDDocument();
 
-        for (byte[] pdfContent : pdfContents) {
+        for (FileHolder fileHolder : storage.getFiles()) {
 
             // create pdf from this file
             // UT 5 - unable to load document
-            PDDocument srcDocument = loadPdf(pdfContent);
+            PDDocument srcDocument = loadPdf(fileHolder.getFile());
 
             int pageCount = srcDocument.getNumberOfPages();
 
@@ -104,12 +91,12 @@ public class PdfProcessor {
         return out.toByteArray();
     }
 
-    public PDDocument loadPdf(byte[] byteContent) throws PdfProcessorException {
+    public PDDocument loadPdf(File file) throws PdfProcessorException {
         PDDocument srcDocument;
 
         try {
             // srcDocument = PDDocument.load(byteContent, "", null, null, MemoryUsageSetting.setupMainMemoryOnly());
-            srcDocument = PDDocument.load(byteContent);
+            srcDocument = PDDocument.load(file);
         } catch (IOException e) {
             throw new PdfProcessorException("Unable to create PDF, an exception occurred while parsing src document", e);
         }

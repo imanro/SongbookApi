@@ -1,4 +1,4 @@
-package songbook.sharing.service.configuration;
+package songbook.sharing.configuration;
 
 import songbook.settings.service.Settings;
 import songbook.settings.service.SettingsException;
@@ -24,13 +24,13 @@ public class SharingSettings {
 
     public void initSharingSettings(User user) {
         try {
-            mailFrom = settings.getValue("sharing.mail.from", user);
+            mailFrom = settings.getValue("sharing.provider.mail.from", user);
 
-            mailDefaultSubject = settings.getValue("sharing.mail.contentMailDefaultSubject", user);
+            mailDefaultSubject = settings.getValue("sharing.provider.mail.contentMailDefaultSubject", user);
 
-            mailBodyTemplate = settings.getValue("sharing.mail.contentMailBodyTemplate", user);
+            mailBodyTemplate = settings.getValue("sharing.provider.mail.contentMailBodyTemplate", user);
 
-            mailDefaultRecipients = settings.getValue("sharing.mail.contentMailDefaultRecipients", user);
+            mailDefaultRecipients = settings.getValue("sharing.provider.mail.contentMailDefaultRecipients", user);
 
         } catch(SettingsException e) {
             throw new RuntimeException("Unable to init settings for user", e);

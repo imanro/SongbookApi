@@ -1,10 +1,12 @@
-package songbook.sharing.service;
+package songbook.sharing.provider;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
+import songbook.sharing.provider.MailSender;
+import songbook.sharing.provider.MailSenderException;
 import songbook.song.entity.SongContent;
 import songbook.song.entity.SongContentTypeEnum;
 import songbook.user.entity.User;
@@ -16,7 +18,6 @@ import songbook.util.file.entity.FileHolder;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.mail.Transport;
@@ -40,7 +41,7 @@ public class MailSenderTest {
     }
 
     @Test
-    void contentMailCanBeCreatedAndSent() throws FileException, MailSenderException, MessagingException, IOException {
+    void contentMailCanBeCreatedAndSent() throws FileException, MailSenderException, MessagingException {
 
         User user1 = new User();
         user1.setEmail("user@example.com");
@@ -75,16 +76,11 @@ public class MailSenderTest {
         content3.setType(SongContentTypeEnum.LINK);
         content3.setContent("https://www.youtube.com/watch?v=4ktVQFisrGo");
 
-        List<SongContent> contents = new ArrayList<>();
-
-        contents.add(content1);
-        contents.add(content2);
-        contents.add(content3);
-
-        MimeMessage message = mailSender.createContentMail(recipients, subject, body, user1, files, contents);
+        MimeMessage message = mailSender.createContentMail(recipients, subject, body, user1, files);
 
         Transport transport = mailSender.getMailSession().getTransport();
         transport.connect();
+        // this way: Needed for tests
         Transport.send(message);
         transport.close();
         // message.
