@@ -10,6 +10,7 @@ import songbook.song.entity.SongContent;
 import songbook.user.entity.User;
 import songbook.util.file.entity.FileHolder;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -99,10 +100,12 @@ public class MailSender {
 
             try {
                 messageBodyPart.setDataHandler(new DataHandler(source));
-                messageBodyPart.setFileName(fileHolder.getOriginalName());
+                messageBodyPart.setFileName(MimeUtility.encodeText(fileHolder.getOriginalName()));
                 multipart.addBodyPart(messageBodyPart);
             } catch(MessagingException e) {
                 throw new MailSenderException("An error has occurred when adding a body part", e);
+            } catch(UnsupportedEncodingException e) {
+                throw new MailSenderException("Unable to encode file name into UTF-8, an exception has occurred", e);
             }
         }
     }
