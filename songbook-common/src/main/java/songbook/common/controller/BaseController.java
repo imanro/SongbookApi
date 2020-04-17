@@ -16,7 +16,6 @@ public class BaseController {
     @Autowired
     protected UserDao userDao;
 
-
     @Transactional
     protected Session getSession() {
         return em.unwrap(Session.class);

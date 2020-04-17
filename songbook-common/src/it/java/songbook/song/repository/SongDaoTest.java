@@ -1,31 +1,47 @@
 package songbook.song.repository;
 
-import org.junit.jupiter.api.DisplayName;
+import com.fasterxml.jackson.annotation.JsonView;
+import org.hibernate.Filter;
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.junit.jupiter.api.*;
+import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureTestEntityManager;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.provider.HibernateUtils;
+import org.springframework.test.annotation.Commit;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
+import songbook.common.BaseIt;
 import songbook.song.entity.Song;
 import songbook.song.entity.SongContent;
 import songbook.song.entity.SongContentTypeEnum;
+import songbook.song.view.Details;
 import songbook.user.entity.User;
 import songbook.user.repository.UserDao;
 
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.PersistenceContext;
+import javax.persistence.PersistenceUnit;
+
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
+import java.util.*;
 
 
 // https://www.baeldung.com/junit-5-runwith
 // https://docs.spring.io/spring-boot/docs/2.1.4.RELEASE/reference/htmlsingle/
 @SpringBootTest
-class SongDaoTest {
+class SongDaoTest extends BaseIt {
 
     Song song;
 
@@ -38,169 +54,190 @@ class SongDaoTest {
     @Autowired
     private UserDao userDao;
 
+    private UserDao userDao2;
+
+    @Autowired
+    private PlatformTransactionManager transactionManager;
+
+    private TransactionTemplate transactionTemplate;
+
+
     // SongDao songDao;
 
     @BeforeEach
-    void init() {
+    void setUp() {
+        transactionTemplate = new TransactionTemplate(transactionManager);
         song = new Song();
     }
 
-    // @Test
-    void saveSong() {
-        song.setId(111L);
-        songDao.save(song);
-        // assertEquals(111, song.getId(), "The assigned id is not match to that expected");
+    @AfterEach
+    void deleteAll() {
+        songContentDao.deleteAll();
+        songDao.deleteAll();
+        userDao.deleteAll();
     }
 
 
+    Long prepareFindByIdWithHeader(User user, User user2) {
+        return transactionTemplate.execute(status -> {
+
+            song.setTitle("Some creative title");
+            songDao.save(song);
+
+            SongContent header1 = new SongContent().
+                    setSong(song).
+                    setContent("1111").
+                    setType(SongContentTypeEnum.HEADER).
+                    setUser(user);
+
+            SongContent favoriteHeader = new SongContent().
+                    setSong(song).
+                    setContent("2222").
+                    setType(SongContentTypeEnum.HEADER).
+                    setIsFavorite(true).
+                    setUser(user);
+
+            SongContent header3 = new SongContent().
+                    setSong(song).
+                    setContent("3333").
+                    setType(SongContentTypeEnum.HEADER).
+                    setUser(user);
+
+            SongContent strangeUserHeader = new SongContent().
+                    setType(SongContentTypeEnum.HEADER).
+                    setUser(user2).
+                    setSong(song);
+
+            Song anotherSong = new Song().
+                    setTitle("Another song");
+            songDao.save(anotherSong);
+
+            SongContent anothersSongHeader = new SongContent().
+                    setContent("Another's song header").
+                    setUser(user).
+                    setType(SongContentTypeEnum.HEADER).
+                    setSong(anotherSong);
+
+            songContentDao.save(header1);
+            songContentDao.save(header3);
+            songContentDao.save(favoriteHeader);
+            songContentDao.save(strangeUserHeader);
+            songContentDao.save(anothersSongHeader);
+
+            return song.getId();
+        });
+    }
+
     @Test
     @DisplayName("Can find by id with header")
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    @Commit
     void findByIdWithHeader() {
 
-        User user = new User();
-        user.setEmail("nobody@example.com");
+        User user = addUser("someemail@example.com");
+        User user2 = addUser("someanotheremail@example.com");
 
-        userDao.save(user);
+        Long needleSongId = prepareFindByIdWithHeader(user, user2);
 
-        User user2 = new User();
-        user2.setEmail("nobody2@example.com");
 
-        userDao.save(user2);
+        transactionTemplate.execute(status -> {
+            songDao.initContentUserFilter(user);
 
-        song.setTitle("Some creative title");
-        songDao.save(song);
+            // songDao.initContentUserFilter(user);
+            Song foundSong = songDao.findById(needleSongId).orElse(null);
 
-        SongContent header1 = new SongContent().
-                setSong(song).
-                setContent("1111").
-                setType(SongContentTypeEnum.HEADER).
-                setUser(user);
+            assertNotNull(foundSong, "The song was not added");
 
-        SongContent favoriteHeader = new SongContent().
-                setSong(song).
-                setContent("2222").
-                setType(SongContentTypeEnum.HEADER).
-                setIsFavorite(true).
-                setUser(user);
+            Collection<SongContent> headers = foundSong.getHeaders();
+            assertNotNull(headers, "The headers was not set");
+            assertEquals(3, headers.size(), "The count of headers is wrong");
 
-        SongContent header3 = new SongContent().
-                setSong(song).
-                setContent("3333").
-                setType(SongContentTypeEnum.HEADER).
-                setUser(user);
+            Iterator<SongContent> it = foundSong.getHeaders().iterator();
+            SongContent header = it.next();
 
-        SongContent strangeUserHeader = new SongContent().
-                setType(SongContentTypeEnum.HEADER).
-                setUser(user2).
-                setSong(song);
+            assertTrue(header.getIsFavorite(), "The first header in the list should have \"isFavorite\" property set");
+            return true;
+        });
+    }
 
-        Song anotherSong = new Song().
-                setTitle("Another song");
-        songDao.save(anotherSong);
+    void prepareFindAllWithHeaders(User user, User user2) {
+        transactionTemplate.execute(status -> {
 
-        SongContent anothersSongHeader = new SongContent().
-                setContent("Another's song header").
-                setUser(user).
-                setType(SongContentTypeEnum.HEADER).
-                setSong(anotherSong);
+            song.setTitle("Some creative title");
+            songDao.save(song);
 
-        songContentDao.save(header1);
-        songContentDao.save(header3);
-        songContentDao.save(favoriteHeader);
-        songContentDao.save(strangeUserHeader);
-        songContentDao.save(anothersSongHeader);
+            Song song2 = new Song();
+            song2.setTitle("Some creative title");
+            songDao.save(song2);
 
-        Optional<Song> foundSongOpt = songDao.findByIdWithHeaders(song.getId());
-        assertTrue(foundSongOpt.isPresent(), "The song is not found");
+            SongContent song1Header1 = new SongContent().
+                    setSong(song).
+                    setContent("just header").
+                    setType(SongContentTypeEnum.HEADER).
+                    setUser(user);
 
-        Song foundSong = foundSongOpt.get();
-        assertEquals(3, foundSong.getHeaders().size(), "The count of headers is wrong");
+            SongContent song1FavoriteHeader = new SongContent().
+                    setSong(song).
+                    setContent("favorite header").
+                    setType(SongContentTypeEnum.HEADER).
+                    setIsFavorite(true).
+                    setUser(user);
 
-        try {
-            // Think about types, may be not set, but arraylist
-            Iterator it = foundSong.getHeaders().iterator();
-            Object header = it.next();
-            assertTrue(((SongContent) header).getIsFavorite(), "The value is wrong");
+            SongContent song1Header3 = new SongContent().
+                    setSong(song).
+                    setContent("just header 3").
+                    setType(SongContentTypeEnum.HEADER).
+                    setUser(user);
 
-        } catch (IndexOutOfBoundsException ce) {
-            throw ce;
-        }
+            SongContent song1Header4AnotherUser = new SongContent().
+                    setSong(song).
+                    setContent("just header 4").
+                    setType(SongContentTypeEnum.HEADER).
+                    setUser(user2);
 
-        // foundSong.ifPresent(x -> System.out.println(x.getHeaders().getContent()));
+
+            SongContent song2Header1 = new SongContent().
+                    setSong(song2).
+                    setContent("just header song 2").
+                    setType(SongContentTypeEnum.HEADER).
+                    setUser(user);
+
+            SongContent song2FavoriteHeader = new SongContent().
+                    setType(SongContentTypeEnum.HEADER).
+                    setIsFavorite(true).
+                    setContent("favorite header song 2").
+                    setUser(user).
+                    setSong(song2);
+
+            songContentDao.save(song1Header1);
+            songContentDao.save(song1FavoriteHeader);
+            songContentDao.save(song1Header3);
+            songContentDao.save(song1Header4AnotherUser);
+            songContentDao.save(song2Header1);
+            songContentDao.save(song2FavoriteHeader);
+
+            return true;
+        });
     }
 
     @Test
     @DisplayName("Can find all with header")
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    @Commit
     void findAllWithHeaders() {
 
-        User user = new User();
-        user.setEmail("nobody@example.com");
+        User user = addUser("someemail@example.com");
+        User user2 = addUser("someanotheremail@example.com");
 
-        userDao.save(user);
+        prepareFindAllWithHeaders(user, user2);
 
-        User user2 = new User();
-        user2.setEmail("nobody223@example.com");
+        transactionTemplate.execute(status -> {
 
-        userDao.save(user2);
+            songDao.initContentUserFilter(user);
+            List<Song> foundSongs = songDao.findAllWithHeaders();
 
-        song.setTitle("Some creative title");
-        songDao.save(song);
+            assertEquals(2, foundSongs.size(), "The size is wrong");
 
-        Song song2 = new Song();
-        song2.setTitle("Some creative title");
-        songDao.save(song2);
-
-        SongContent song1Header1 = new SongContent().
-                setSong(song).
-                setContent("just header").
-                setType(SongContentTypeEnum.HEADER).
-                setUser(user);
-
-        SongContent song1FavoriteHeader = new SongContent().
-                setSong(song).
-                setContent("favorite header").
-                setType(SongContentTypeEnum.HEADER).
-                setIsFavorite(true).
-                setUser(user);
-
-        SongContent song1Header3 = new SongContent().
-                setSong(song).
-                setContent("just header 3").
-                setType(SongContentTypeEnum.HEADER).
-                setUser(user);
-
-        SongContent song1Header4AnotherUser = new SongContent().
-                setSong(song).
-                setContent("just header 4").
-                setType(SongContentTypeEnum.HEADER).
-                setUser(user2);
-
-
-        SongContent song2Header1 = new SongContent().
-                setSong(song2).
-                setContent("just header song 2").
-                setType(SongContentTypeEnum.HEADER).
-                setUser(user);
-
-        SongContent song2FavoriteHeader = new SongContent().
-                setType(SongContentTypeEnum.HEADER).
-                setIsFavorite(true).
-                setContent("favorite header song 2").
-                setUser(user).
-                setSong(song2);
-
-        songContentDao.save(song1Header1);
-        songContentDao.save(song1FavoriteHeader);
-        songContentDao.save(song1Header3);
-        songContentDao.save(song1Header4AnotherUser);
-        songContentDao.save(song2Header1);
-        songContentDao.save(song2FavoriteHeader);
-
-        List<Song> foundSongs = songDao.findAllWithHeaders();
-
-        assertEquals(2, foundSongs.size(), "The size is wrong");
-
-        try {
             Song foundSong1 = foundSongs.get(0);
             assertEquals(3, foundSong1.getHeaders().size(), "The count of headers of found song 1 is wrong");
 
@@ -214,10 +251,7 @@ class SongDaoTest {
                 throw ce;
             }
 
-        } catch (IndexOutOfBoundsException e) {
-            throw e;
-        }
-        try {
+
             Song foundSong2 = foundSongs.get(1);
             assertEquals(2, foundSong2.getHeaders().size(), "The count of headers of found song 2 is wrong");
 
@@ -231,72 +265,48 @@ class SongDaoTest {
                 throw ce;
             }
 
-        } catch (IndexOutOfBoundsException e) {
-            throw e;
-        }
+
+            return true;
+        });
     }
 
-
-    // @Test
+    @Test
     @DisplayName("Can find by header with headers")
     void findByHeaderWithHeaders() {
-        User user = new User();
-        user.setEmail("nobody@example.com");
-        userDao.save(user);
 
-        song.setTitle("Some creative title");
-        songDao.save(song);
+        User user = addUser("nobody@example.com");
 
-        SongContent header1 = new SongContent().
-                setSong(song).
-                setContent("String in which Name is in the middle").
-                setType(SongContentTypeEnum.HEADER).
-                setUser(user);
+        transactionTemplate.execute(status -> {
+            song.setTitle("Some creative title");
+            songDao.save(song);
 
-        Song anotherSong = new Song();
-        songDao.save(anotherSong);
+            SongContent header1 = new SongContent().
+                    setSong(song).
+                    setContent("String in which Name is in the middle").
+                    setType(SongContentTypeEnum.HEADER).
+                    setUser(user);
 
-        SongContent header2 = new SongContent().
-                setSong(anotherSong).
-                setContent("String in which param is not presented").
-                setType(SongContentTypeEnum.HEADER).
-                setUser(user);
+            Song anotherSong = new Song();
+            songDao.save(anotherSong);
 
-        songContentDao.save(header1);
-        songContentDao.save(header2);
+            SongContent header2 = new SongContent().
+                    setSong(anotherSong).
+                    setContent("String in which param is not presented").
+                    setType(SongContentTypeEnum.HEADER).
+                    setUser(user);
 
-        // List<Song> foundSongs = songDao.findByHeaderWithHeaders("name", user);
-        // System.out.println(String.format("%s records obtained", foundSongs.size()));
+            songContentDao.save(header1);
+            songContentDao.save(header2);
+
+            return true;
+        });
+
+        transactionTemplate.execute(status -> {
+            List<Song> foundSongs = songDao.findAllByHeaderWithHeaders("name");
+            Assertions.assertEquals(1, foundSongs.size(), "The found songs size is wrong");
+            return true;
+        });
     }
 
-    void prepareFindByHeaderWithHeadersPageable() {
-        User user = new User();
-        user.setEmail("nobody3@example.com");
-        userDao.save(user);
-
-        Song song1 = new Song();
-        song1.setTitle("Song A");
-        songDao.save(song1);
-
-        Song song2 = new Song();
-        song2.setTitle("Song B");
-        songDao.save(song2);
-
-        SongContent header1 = new SongContent().
-                setSong(song).
-                setContent("Header Song A").
-                setType(SongContentTypeEnum.HEADER).
-                setUser(user);
-        songContentDao.save(header1);
-
-        SongContent header2 = new SongContent().
-                setSong(song).
-                setContent("Header Song B").
-                setType(SongContentTypeEnum.HEADER).
-                setUser(user);
-        songContentDao.save(header2);
-
-        Pageable page = PageRequest.of(0, 1, Sort.Direction.ASC, "id");
-    }
 }
 

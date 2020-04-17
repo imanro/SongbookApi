@@ -8,12 +8,14 @@ import songbook.user.entity.User;
 import javax.persistence.*;
 
 @Entity
+@Table(name="setting",
+        uniqueConstraints=@UniqueConstraint(columnNames={"name", "user_id"}))
 public class Setting {
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     private long id;
 
-    @Column(unique=true, nullable=false)
+    @Column(nullable=false)
     private String name;
 
     private String value;

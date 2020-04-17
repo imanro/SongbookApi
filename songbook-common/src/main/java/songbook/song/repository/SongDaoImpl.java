@@ -1,17 +1,30 @@
 package songbook.song.repository;
 
+import org.hibernate.Session;
 import org.springframework.transaction.annotation.Transactional;
 import songbook.song.entity.Song;
+import songbook.user.entity.User;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
+@Transactional
 public class SongDaoImpl implements SongDaoCustom{
     @PersistenceContext
-    private EntityManager em;
+    protected EntityManager em;
+
+    public Session getSession() {
+        return em.unwrap(Session.class);
+    }
+
     @Override
-    @Transactional
+    // @Transactional
     public void refresh(Song song) {
         em.refresh(song);
+    }
+
+    @Override
+    public void initContentUserFilter(User user) {
+        this.getSession().enableFilter("contentUser").setParameter("userId", user.getId());
     }
 }

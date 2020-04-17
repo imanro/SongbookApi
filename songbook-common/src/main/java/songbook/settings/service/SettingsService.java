@@ -8,11 +8,12 @@ import org.springframework.stereotype.Service;
 import songbook.user.entity.User;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
-public class Settings {
+public class SettingsService {
 
     @Autowired
     private SettingDao settingDao;
@@ -22,11 +23,11 @@ public class Settings {
 
     private Map<Long, Map<String, String>> storage;
 
-    public Settings() {
+    public SettingsService() {
         this.storage = new HashMap<>();
     }
 
-    public Settings setValue(String name, String value, User user) {
+    public SettingsService setValue(String name, String value, User user) {
         Setting setting = new Setting()
                 .setName(name)
                 .setValue(value)
@@ -39,7 +40,9 @@ public class Settings {
 
     public String getValue(String name, User user, String defaultValue) throws SettingsException {
         if (!storage.containsKey(user.getId())) {
-            fetchSettingsForUser(user);
+            // read database for this user
+            Map<String, String> userSettings = fetchSettingsForUser(user);
+            addStorageSettings(userSettings, user);
         }
 
         if (storage.containsKey(user.getId())) {
@@ -47,8 +50,9 @@ public class Settings {
 
             if (value != null) {
                 return value;
+
             } else {
-                // one else attempt
+                // one else attempt (may be, this is new setting that was not in the old database? store it)
                 syncDefaultSettingsForUser(user);
                 // but get default value
                 return defaultValue;
@@ -60,7 +64,8 @@ public class Settings {
 
     public String getValue(String name, User user) throws SettingsException {
         if (!storage.containsKey(user.getId())) {
-            fetchSettingsForUser(user);
+            Map<String, String> userSettings = fetchSettingsForUser(user);
+            addStorageSettings(userSettings, user);
         }
 
         if (storage.containsKey(user.getId())) {
@@ -73,6 +78,20 @@ public class Settings {
                 syncDefaultSettingsForUser(user);
                 return storage.get(user.getId()).get(name);
             }
+        } else {
+            throw new SettingsException("The user settings cannot be get");
+        }
+    }
+
+    public Map<String, String> getAllSettings(User user) throws SettingsException {
+        if (!storage.containsKey(user.getId())) {
+            Map<String, String> userSettings = fetchSettingsForUser(user);
+            addStorageSettings(userSettings, user);
+        }
+
+        if (storage.containsKey(user.getId())) {
+            return storage.get(user.getId());
+
         } else {
             throw new SettingsException("The user settings cannot be get");
         }
@@ -91,7 +110,7 @@ public class Settings {
     }
 
 
-    private void fetchSettingsForUser(User user) {
+    private Map<String, String> fetchSettingsForUser(User user) {
         Map<String, String> settings = settingDao.findAllByUser(user).stream().collect(Collectors.toMap(Setting::getName, Setting::getValue));
 
         // if there is no settings, init with default values
@@ -99,7 +118,7 @@ public class Settings {
             settings = initDefaultSettingsForUser(user);
         }
 
-        addStorageSettings(settings, user);
+        return settings;
     }
 
     private Map<String, String> initDefaultSettingsForUser(User user) {

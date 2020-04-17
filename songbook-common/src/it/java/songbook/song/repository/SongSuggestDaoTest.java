@@ -33,6 +33,9 @@ public class SongSuggestDaoTest {
     private SongDao songDao;
 
     @Autowired
+    private SongContentDao songContentDao;
+
+    @Autowired
     private ConcertDao concertDao;
 
     @Autowired
@@ -51,6 +54,7 @@ public class SongSuggestDaoTest {
     void init() {
         concertItemDao.deleteAll();
         concertDao.deleteAll();
+        songContentDao.deleteAll();
         songDao.deleteAll();
         userDao.deleteAll();
     }

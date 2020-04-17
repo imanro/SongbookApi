@@ -21,18 +21,6 @@ class CloudDaoTest {
     @Autowired
     private CloudDao cloudDao;
 
-    private static final String ROOT_FOLDER_NAME = "songbook";
-
-    @Test
-    void throwsExceptionWhenRootFolderIsNotSet() {
-        Song song = new Song();
-        song.setId(2L);
-
-        Assertions.assertThrows(CloudException.class, () -> {
-            List<CloudFile> files = cloudDao.getSongFiles(song);
-        });
-    }
-
     @Test
     void canReadSongFilesFolderExists() {
         System.out.println("Executing");

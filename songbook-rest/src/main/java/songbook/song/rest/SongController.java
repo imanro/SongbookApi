@@ -149,10 +149,8 @@ public class SongController extends BaseController {
 
     private void initFilters() {
         User user = getDefaultUser();
-
-        Session session = getSession();
-        session.enableFilter("headerType").setParameter("type", SongContentTypeEnum.HEADER.toString());
-        session.enableFilter("contentUser").setParameter("userId", user.getId());
+        songDao.initHeaderTypeFilter();
+        songDao.initContentUserFilter(user);
     }
 
 }

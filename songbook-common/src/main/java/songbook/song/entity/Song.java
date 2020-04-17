@@ -67,13 +67,14 @@ public class Song extends BaseEntity {
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "song")
     @Fetch(FetchMode.SUBSELECT)
+    @Where(clause = "type='HEADER'")
     @OrderBy("isFavorite DESC")
     // @JsonManagedReference
     @JsonView(HeaderSummary.class)
-
     @Filters({
             @Filter(name = "headerType"),
-            @Filter(name = "contentUser")
+            @Filter(name = "contentUser"),
+            @Filter(name = "contentUserTest", condition = "user_id=:userId")
     })
     private Set<SongContent> headers;
 

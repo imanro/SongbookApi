@@ -1,6 +1,6 @@
 package songbook.sharing.configuration;
 
-import songbook.settings.service.Settings;
+import songbook.settings.service.SettingsService;
 import songbook.settings.service.SettingsException;
 import songbook.user.entity.User;
 
@@ -14,9 +14,9 @@ public class SharingSettings {
 
     private String mailDefaultRecipients;
 
-    Settings settings;
+    SettingsService settings;
 
-    public SharingSettings(User user, Settings settings) {
+    public SharingSettings(User user, SettingsService settings) {
         // this way because i dont want to define beans now..
         this.settings = settings;
         initSharingSettings(user);

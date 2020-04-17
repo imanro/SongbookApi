@@ -2,16 +2,14 @@ package songbook.sharing.provider;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import songbook.settings.service.Settings;
+import songbook.settings.service.SettingsService;
 import songbook.settings.service.SettingsException;
 import songbook.sharing.configuration.SharingProperties;
 import songbook.sharing.configuration.SharingSettings;
-import songbook.song.entity.SongContent;
 import songbook.user.entity.User;
 import songbook.util.file.entity.FileHolder;
 
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import javax.activation.DataHandler;
@@ -27,7 +25,7 @@ public class MailSender {
     private SharingProperties properties;
 
     @Autowired
-    private Settings settingsService;
+    private SettingsService settingsService;
 
     private Session mailSession;
 
