@@ -6,6 +6,8 @@ import java.util.List;
 
 public interface CloudDriver {
 
+    void init() throws CloudDriverException;
+
     CloudFile findFolder(String name) throws CloudDriverException;
 
     List<CloudFile> findFiles(CloudFile parentFolder) throws CloudDriverException;

@@ -1,7 +1,6 @@
 package songbook.settings.service;
 
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -15,17 +14,14 @@ import org.junit.jupiter.api.Assertions;
 public class SettingsServiceIntegrationTest extends BaseIt  {
 
     @Autowired
-    private SettingsService settingsDao;
-
-    @Autowired
     private SettingsService settings;
 
     @Autowired
-    private SettingDao settingsDaoReal;
+    private SettingDao settingsDao;
 
     @AfterEach
     void cleanAll() {
-        settingsDaoReal.deleteAll();
+        settingsDao.deleteAll();
         userDao.deleteAll();
     }
 

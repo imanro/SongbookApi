@@ -22,6 +22,7 @@ import songbook.cloud.CloudException;
 import songbook.cloud.configuration.CloudProperties;
 import songbook.cloud.entity.CloudFile;
 
+import javax.annotation.PostConstruct;
 import java.io.*;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
@@ -32,15 +33,12 @@ import java.util.List;
 // @See
 // https://developers.google.com/drive/api/v3/quickstart/java?authuser=1
 
-@Component
 public class GDrive implements CloudDriver {
     private static final String APPLICATION_NAME = "Songbook API v2";
 
     private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
 
     private static final List<String> SCOPES = Arrays.asList(DriveScopes.DRIVE);
-
-    private static final String TOKENS_DIRECTORY_PATH = "tokens";
 
     private static final String CREDENTIALS_FILE_PATH = "credentials.json";
 
@@ -51,20 +49,34 @@ public class GDrive implements CloudDriver {
     @Autowired
     CloudProperties properties;
 
-    public GDrive() throws CloudException {
-
-        try {
-            this.service = this.initService();
-
-        } catch (GeneralSecurityException e) {
-            throw new CloudException("Security exception occurred", e);
-
-        } catch (IOException e) {
-            throw new CloudException("IO exception", e);
-        }
-
+    @Override
+    public void init() throws  CloudDriverException {
+        initService();
         initMimesSubstitute();
     }
+
+    private void initService() throws CloudDriverException {
+
+        try {
+            final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
+            this.service = new Drive.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT))
+                    .setApplicationName(APPLICATION_NAME)
+                    .build();
+
+        } catch (IOException e) {
+            throw new CloudDriverException("IO exception (" + e.getMessage() + ")", e);
+        } catch (GeneralSecurityException e) {
+            throw new CloudDriverException("General security exception", e);
+        }
+    }
+
+
+    private void initMimesSubstitute() {
+        this.mimesSubstitute = new HashMap<>();
+        this.mimesSubstitute.put("application/vnd.google-apps.document", "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+        this.mimesSubstitute.put("application/vnd.google-apps.presentation", "application/vnd.openxmlformats-officedocument.presentationml.presentation");
+    }
+
 
     /**
      * Returns certain folder by namve in root songook's folder
@@ -299,20 +311,14 @@ public class GDrive implements CloudDriver {
         // Build flow and trigger user authorization request.
         GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
                 HTTP_TRANSPORT, JSON_FACTORY, clientSecrets, SCOPES)
-                .setDataStoreFactory(new FileDataStoreFactory(new java.io.File(TOKENS_DIRECTORY_PATH)))
+                .setDataStoreFactory(new FileDataStoreFactory(new java.io.File(properties.getTokensDirPath())))
                 .setAccessType("offline")
                 .build();
 
-        LocalServerReceiver receiver = new LocalServerReceiver.Builder().setPort(8888).build();
+        LocalServerReceiver receiver = new LocalServerReceiver.Builder().setHost(properties.getVerificationCallbackHost()).setPort(8888).build();
         return new AuthorizationCodeInstalledApp(flow, receiver).authorize("user");
     }
 
-    private Drive initService() throws GeneralSecurityException, IOException {
-        final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
-        return new Drive.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT))
-                .setApplicationName(APPLICATION_NAME)
-                .build();
-    }
 
     private Drive getService() {
         return service;
@@ -320,12 +326,6 @@ public class GDrive implements CloudDriver {
 
     private boolean isTheMimeTypeGoogleDocsFormat(String mimeType) {
         return mimeType.contains("application/vnd.google-apps");
-    }
-
-    private void initMimesSubstitute() throws CloudDriverException {
-        this.mimesSubstitute = new HashMap<>();
-        this.mimesSubstitute.put("application/vnd.google-apps.document", "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
-        this.mimesSubstitute.put("application/vnd.google-apps.presentation", "application/vnd.openxmlformats-officedocument.presentationml.presentation");
     }
 
     private String getSubstituteMimeType(String mimeType) throws CloudDriverException {

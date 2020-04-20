@@ -60,5 +60,8 @@ public interface SongDao extends JpaRepository<Song, Long>, SongDaoCustom {
             @Param("searchString") String searchString,
             Pageable pageable
     );
+
     Song findBySbV1Id(int sbV1Id);
+
+    Song findByCode(String Code);
 }

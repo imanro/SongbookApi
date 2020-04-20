@@ -17,11 +17,19 @@ public class CloudProperties {
 
     private String rootFolderName;
 
+    private String tokensDirPath;
+
+    private String verificationCallbackHost;
+
     @Autowired // checkme is it needed
     public CloudProperties(
-            @Value("${songbook.cloud.driver.gdrive.root-folder-name}") String rootFolderName
+            @Value("${songbook.cloud.driver.gdrive.root-folder-name}") String rootFolderName,
+            @Value("${songbook.cloud.driver.gdrive.tokens-dir-path}") String tokensDirPath,
+            @Value("${songbook.cloud.driver.gdrive.verification-callback-host}") String verificationCallbackHost
     ) {
         this.rootFolderName = rootFolderName;
+        this.tokensDirPath = tokensDirPath;
+        this.verificationCallbackHost = verificationCallbackHost;
     }
 
     public String getRootFolderName() throws RuntimeException {
@@ -32,4 +40,23 @@ public class CloudProperties {
 
         return rootFolderName;
     }
+
+    public String getTokensDirPath() throws RuntimeException {
+
+        if (tokensDirPath == null) {
+            throw new RuntimeException("tokens-dir-path is not set by properties");
+        }
+
+        return tokensDirPath;
+    }
+
+    public String getVerificationCallbackHost() throws RuntimeException {
+
+        if (tokensDirPath == null) {
+            throw new RuntimeException("verification-callback-host is not set by properties");
+        }
+
+        return verificationCallbackHost;
+    }
+
 }

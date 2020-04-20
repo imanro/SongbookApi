@@ -39,13 +39,13 @@ public class CloudDao {
      * @throws CloudException
      */
     public List<CloudFile> getSongFiles(Song song) throws CloudException {
-        return getDriver().findFilesByFolderName(String.valueOf(song.getId()));
+        return getDriver().findFilesByFolderName(resolveSongFolderName(song));
     }
 
     public CloudFile uploadSongFile(Song song, java.io.File filePath, String fileName) throws CloudException {
 
         // get song folder first
-        CloudFile songFolder = getDriver().findFolder(String.valueOf(song.getId()));
+        CloudFile songFolder = getDriver().findFolder(resolveSongFolderName(song));
 
         // okay, now detect file's mimetype
         Path path = filePath.toPath();
@@ -67,17 +67,22 @@ public class CloudDao {
         return getDriver().getFileContents(file);
     }
 
-    protected CloudDriver getDriver() throws CloudException {
+    private CloudDriver getDriver() throws CloudException {
         if(this.driver == null) {
             CloudDriver driver = new GDrive();
             this.autowireCapableBeanFactory.autowireBean(driver);
+            driver.init();
             this.setDriver(driver);
         }
 
         return this.driver;
     }
 
-    protected CloudDao setDriver(CloudDriver driver) {
+    private String resolveSongFolderName(Song song) {
+        return song.getCode();
+    }
+
+    private CloudDao setDriver(CloudDriver driver) {
         this.driver = driver;
         return this;
     }

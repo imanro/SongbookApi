@@ -10,7 +10,7 @@ public class AbstractMapper {
     protected Date parseDateString(String dateString) {
         LocalDateTime localDate = LocalDateTime.parse(
                 dateString,
-                DateTimeFormatter.ofPattern( "uuuu-MM-dd HH:mm:ss" )
+                DateTimeFormatter.ofPattern( "uuuu-MM-dd HH:mm:ss.S" )
         );
 
         return Date.from( localDate.atZone( ZoneId.systemDefault()).toInstant());

@@ -10,12 +10,14 @@ class SongMapper extends AbstractMapper implements RowMapper<Song> {
 
     @Override
     public Song mapRow(ResultSet rs, int rowNum) throws SQLException {
+
+        System.out.println("Parsing song #" + rs.getInt("id"));
+
         Song song = new Song();
         song.setId(rs.getInt("id"));
         song.setTitle(rs.getString("title"));
         song.setAuthor(rs.getString("author"));
         song.setCopyright(rs.getString("copyright"));
-
         Date createdAt = this.parseDateString(rs.getString("create_time"));
         song.setCreateTime(createdAt);
 

@@ -72,9 +72,9 @@ class SongDaoTest extends BaseIt {
 
     @AfterEach
     void deleteAll() {
-        songContentDao.deleteAll();
-        songDao.deleteAll();
-        userDao.deleteAll();
+        // songContentDao.deleteAll();
+        // songDao.deleteAll();
+        // userDao.deleteAll();
     }
 
 

@@ -27,7 +27,7 @@ public class SongImporter {
             song.setAuthor(srcSong.getAuthor());
             song.setTitle(srcSong.getTitle());
             song.setUpdateTime(srcSong.getCreateTime());
-            song.setSbV1Id(srcSong.getId());
+            song.setCode(String.valueOf(srcSong.getId()));
             songDaoTrg.save(song);
 
             System.out.println("The create time is " + srcSong.getCreateTime().toString());

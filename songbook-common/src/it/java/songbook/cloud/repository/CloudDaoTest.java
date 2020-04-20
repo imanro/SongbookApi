@@ -15,7 +15,6 @@ import java.io.*;
 import java.util.List;
 
 @SpringBootTest
-@TestPropertySource(locations = "/cloud-dao.properties")
 class CloudDaoTest {
 
     @Autowired
@@ -26,7 +25,7 @@ class CloudDaoTest {
         System.out.println("Executing");
 
         Song song = new Song();
-        song.setId(this.getExistingSongId());
+        song.setCode(this.getExistingSongCode());
 
         List<CloudFile> files;
 
@@ -64,8 +63,7 @@ class CloudDaoTest {
     void canUploadTheSongFile() throws NullPointerException, CloudException {
 
         Song song = new Song();
-        song.setId(this.getExistingSongId());
-
+        song.setCode(this.getExistingSongCode());
 
         String fileName = "test.txt";
 
@@ -114,7 +112,7 @@ class CloudDaoTest {
         return (int)(Math.random() * (max - min + 1) + min);
     }
 
-    private Long getExistingSongId() {
-        return 2L;
+    private String getExistingSongCode() {
+        return "2";
     }
 }

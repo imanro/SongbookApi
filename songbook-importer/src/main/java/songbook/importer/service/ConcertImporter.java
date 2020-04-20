@@ -72,7 +72,7 @@ public class ConcertImporter extends AbstractImporter {
                 // for each concert item
 
                 // search for a corresponding song
-                Song song = this.songTrgDao.findBySbV1Id(srcConcertItem.getSongId());
+                Song song = this.songTrgDao.findByCode(String.valueOf(srcConcertItem.getSongId()));
 
                 if(song != null) {
                     // if song is found

@@ -35,11 +35,11 @@ public class ContentImporter extends AbstractImporter {
 
         srcContents.forEach((srcContent) -> {
 
-            Song song = this.songDaoTrg.findBySbV1Id(srcContent.getSongId());
+            Song song = this.songDaoTrg.findByCode(String.valueOf(srcContent.getSongId()));
             // find corresponding song by field sb_v1_id
 
             if (song != null) {
-                System.out.println("The song with sb_v1_id #" + song.getSbV1Id() + " found, importing content");
+                System.out.println("The song with sb_v1_id #" + song.getCode() + " found, importing content");
 
                 SongContent content = new SongContent();
                 content.setUser(user);
@@ -69,7 +69,7 @@ public class ContentImporter extends AbstractImporter {
                 songContentDaoTrg.save(content);
 
             } else {
-                System.out.println("There is no such song with sb_v1_id #" + song.getSbV1Id() + ", skipping");
+                System.out.println("There is no such song with code #" + song.getCode() + ", skipping");
             }
         });
     }

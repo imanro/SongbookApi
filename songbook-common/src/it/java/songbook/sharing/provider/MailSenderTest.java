@@ -23,7 +23,6 @@ import java.util.List;
 import javax.mail.Transport;
 
 @SpringBootTest
-@TestPropertySource(locations = "/sharing.properties")
 public class MailSenderTest {
 
     @Autowired

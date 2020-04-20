@@ -6,6 +6,9 @@ import javax.persistence.*;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.OrderBy;
+import javax.xml.bind.DatatypeConverter;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
@@ -50,6 +53,9 @@ public class Song extends BaseEntity {
     @Column(name = "sb_v1_id")
     private int sbV1Id;
 
+    @Column(name = "code", nullable = false, unique = true)
+    private String code;
+
     @ManyToMany(fetch = FetchType.LAZY,
             // THE cascade is required if you want to save items by getTags().add() and then songDao.save(item) !!!!
             cascade = {
@@ -72,9 +78,7 @@ public class Song extends BaseEntity {
     // @JsonManagedReference
     @JsonView(HeaderSummary.class)
     @Filters({
-            @Filter(name = "headerType"),
             @Filter(name = "contentUser"),
-            @Filter(name = "contentUserTest", condition = "user_id=:userId")
     })
     private Set<SongContent> headers;
 
@@ -86,6 +90,9 @@ public class Song extends BaseEntity {
                     CascadeType.ALL
             }*/)
     @JsonView(Details.class)
+    @Filters({
+            @Filter(name = "contentUser"),
+    })
     private Set<SongContent> content;
 
     public String getTitle() {
@@ -185,6 +192,15 @@ public class Song extends BaseEntity {
         return this;
     }
 
+    public String getCode() {
+        return code;
+    }
+
+    public Song setCode(String code) {
+        this.code = code;
+        return this;
+    }
+
     public boolean getIsCloudContentNeedsToBeSynced() {
         return isCloudContentNeedsToBeSynced;
     }
@@ -196,6 +212,17 @@ public class Song extends BaseEntity {
 
     @PostLoad
     private void postLoad() {
+        this.verifyCloudContentSyncTime();
+    }
+
+    @PrePersist
+    private void prePersist() throws NoSuchAlgorithmException {
+        if (code == null) {
+            code = generateCode();
+        }
+    }
+
+    private void verifyCloudContentSyncTime() {
         if (this.cloudContentSyncTime != null) {
             Date currentDate = new Date();
 
@@ -205,6 +232,14 @@ public class Song extends BaseEntity {
         } else {
             this.isCloudContentNeedsToBeSynced = true;
         }
-        // this.isCloudContentNeededToBeSynced =
+    }
+
+    private String generateCode() throws NoSuchAlgorithmException {
+        Date currentDate = new Date();
+        String md5Base = String.valueOf(currentDate.getTime());
+        MessageDigest md5 = MessageDigest.getInstance("MD5");
+        md5.update(md5Base.getBytes());
+        byte[] digest = md5.digest();
+        return DatatypeConverter.printHexBinary(digest).toLowerCase();
     }
 }

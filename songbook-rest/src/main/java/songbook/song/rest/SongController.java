@@ -68,6 +68,11 @@ public class SongController extends BaseController {
         }
     }
 
+    @PostMapping("")
+    public Song createSong(@RequestBody Song newSong) {
+            return songDao.save(newSong);
+    }
+
     @PostMapping("{songId}/tags/{tagId}")
     @JsonView(Details.class)
     public Song attachSongToTag(@PathVariable("songId") long songId, @PathVariable("tagId") long tagId) throws ResponseStatusException {
@@ -149,7 +154,6 @@ public class SongController extends BaseController {
 
     private void initFilters() {
         User user = getDefaultUser();
-        songDao.initHeaderTypeFilter();
         songDao.initContentUserFilter(user);
     }
 
