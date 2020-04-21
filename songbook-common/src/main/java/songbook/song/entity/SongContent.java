@@ -5,8 +5,11 @@ import songbook.user.entity.User;
 
 import javax.persistence.*;
 import javax.persistence.Entity;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.util.Date;
 import com.fasterxml.jackson.annotation.*;
+
 
 @Entity
 @FilterDef(name="headerType", parameters=@ParamDef( name="type", type="string" ), defaultCondition ="type=:type")
@@ -17,11 +20,14 @@ public class SongContent {
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     private long id;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
     private SongContentTypeEnum type;
 
     private String url;
 
+    @NotNull
+    @Size(min = 3)
     // @Column(columnDefinition="TEXT")
     @Type(type = "org.hibernate.type.TextType")
     private String content;
@@ -40,6 +46,7 @@ public class SongContent {
     @Column(name = "create_time")
     private Date createTime;
 
+    @NotNull
     /*
      * https://stackoverflow.com/questions/3331907/what-is-the-difference-between-manytooneoptional-false-vs-columnnullable-f
      * optional=false is a runtime instruction. The primary functional thing it does is related to Lazy Loading.
@@ -53,10 +60,11 @@ public class SongContent {
     @JsonBackReference
     private Song song;
 
+    @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id")
     @OnDelete(action = OnDeleteAction.NO_ACTION)
-    @JsonIgnore
+//    @JsonIgnore
     private User user;
 
     public long getId() {

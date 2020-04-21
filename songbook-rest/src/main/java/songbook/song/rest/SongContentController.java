@@ -4,13 +4,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import songbook.content.service.PdfProcessor;
 import songbook.content.service.PdfProcessorException;
+import songbook.rest.model.Errors;
 import songbook.song.entity.SongContent;
 import songbook.song.repository.SongContentDao;
 
+import javax.validation.Valid;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -33,11 +36,24 @@ public class SongContentController {
         return songContentDao.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "item not found"));
     }
 
-    @RequestMapping("")
+    @GetMapping("")
     public List<SongContent> getContentsByIds(@RequestParam List<Long> ids)
     {
         List<SongContent> songContents  = songContentDao.findAllById(ids);
         return songContents;
+    }
+
+    @PostMapping("")
+    public Object createSongContent(@RequestBody @Valid SongContent newContent, BindingResult bindingResult) throws ResponseStatusException {
+
+        if (bindingResult.hasErrors()) {
+            Errors errors = new Errors("Bad request!");
+            errors.convertFieldErrors(bindingResult.getFieldErrors());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
+        } else {
+            // @RequestBody @Valid  SongContentMailRequest request, BindingResult bindingResult
+            return songContentDao.save(newContent);
+        }
     }
 
     @RequestMapping("/song/{id}")
