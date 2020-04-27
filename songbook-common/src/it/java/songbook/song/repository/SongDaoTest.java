@@ -1,22 +1,10 @@
 package songbook.song.repository;
 
-import com.fasterxml.jackson.annotation.JsonView;
-import org.hibernate.Filter;
-import org.hibernate.HibernateException;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 import org.junit.jupiter.api.*;
-import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureTestEntityManager;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.provider.HibernateUtils;
 import org.springframework.test.annotation.Commit;
 import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -24,14 +12,8 @@ import songbook.common.BaseIt;
 import songbook.song.entity.Song;
 import songbook.song.entity.SongContent;
 import songbook.song.entity.SongContentTypeEnum;
-import songbook.song.view.Details;
 import songbook.user.entity.User;
 import songbook.user.repository.UserDao;
-
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.PersistenceContext;
-import javax.persistence.PersistenceUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -234,7 +216,7 @@ class SongDaoTest extends BaseIt {
         transactionTemplate.execute(status -> {
 
             songDao.initContentUserFilter(user);
-            List<Song> foundSongs = songDao.findAllWithHeaders();
+            List<Song> foundSongs = songDao.findAllWithHeadersAndTags();
 
             assertEquals(2, foundSongs.size(), "The size is wrong");
 
@@ -302,7 +284,7 @@ class SongDaoTest extends BaseIt {
         });
 
         transactionTemplate.execute(status -> {
-            List<Song> foundSongs = songDao.findAllByHeaderWithHeaders("name");
+            List<Song> foundSongs = songDao.findAllByHeaderWithHeadersAndTags("name");
             Assertions.assertEquals(1, foundSongs.size(), "The found songs size is wrong");
             return true;
         });

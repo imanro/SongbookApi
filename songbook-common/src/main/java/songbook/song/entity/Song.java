@@ -14,6 +14,7 @@ import java.util.*;
 import com.fasterxml.jackson.annotation.*;
 import songbook.common.entity.BaseEntity;
 import songbook.song.view.HeaderSummary;
+import songbook.song.view.HeaderTagSummary;
 import songbook.util.view.Summary;
 import songbook.song.view.Details;
 import songbook.tag.entity.Tag;
@@ -62,13 +63,14 @@ public class Song extends BaseEntity {
                     CascadeType.PERSIST,
                     CascadeType.MERGE
             })
+    @Fetch(FetchMode.SUBSELECT)
     @OrderBy("title ASC")
     @JoinTable(
             name = "tag_song",
             joinColumns = {@JoinColumn(name = "song_id")},
             inverseJoinColumns = {@JoinColumn(name = "tag_id")}
     )
-    @JsonView(Details.class)
+    @JsonView(HeaderTagSummary.class)
     private Set<Tag> tags = new HashSet<>();
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "song")

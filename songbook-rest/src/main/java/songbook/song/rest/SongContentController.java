@@ -17,7 +17,9 @@ import javax.validation.Valid;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/song-content")
@@ -54,6 +56,16 @@ public class SongContentController {
             // @RequestBody @Valid  SongContentMailRequest request, BindingResult bindingResult
             return songContentDao.save(newContent);
         }
+    }
+
+    @DeleteMapping("{id}")
+    public ResponseEntity<Map<String, String>> delete(@PathVariable("id") long id) {
+        SongContent songContent = songContentDao.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "item not found"));
+        songContentDao.delete(songContent);
+
+        Map<String, String> response = new HashMap<>();
+        response.put("result", "ok");
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @RequestMapping("/song/{id}")

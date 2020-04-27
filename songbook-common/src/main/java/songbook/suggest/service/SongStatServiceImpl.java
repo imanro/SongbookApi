@@ -42,6 +42,6 @@ public class SongStatServiceImpl implements SongStatService {
 
                             return newItem;
                         }).collect(Collectors.toList()),
-                req, items.getContent().size());
+                req, items.getTotalElements());
     }
 }

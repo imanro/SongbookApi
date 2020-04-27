@@ -5,34 +5,16 @@ import javax.persistence.*;
 import javax.persistence.Entity;
 import javax.persistence.NamedNativeQuery;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.*;
+import songbook.concert.view.Details;
 
 import java.util.Date;
+// import javax.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "concert_item")
-@SqlResultSetMapping(
-        name="pci",
-        entities={
-                @EntityResult(
-                        entityClass= ConcertItem.class,
-                        fields={
-                                @FieldResult(name="id", column = "ci.id"),
-                                @FieldResult(name="createTime", column = "ci.create_time"),
-                                @FieldResult(name="concert", column = "ci.concert_id"),
-                                @FieldResult(name="song", column = "ci.song_id"),
-                                @FieldResult(name="concertGroup", column = "ci.concert_group_id"),
-                                @FieldResult(name="orderValue", column = "ci.order_value")
-                        }
-                )
-        },
-        columns= {
-                @ColumnResult(name="total")
-        }
-
-)
-@NamedNativeQuery(name="ConcertItem.findPopularConcertItemss", query="SELECT count(1) total,  ci.* FROM concert_item ci GROUP BY ci.song_id", resultSetMapping = "pci")
 public class ConcertItem {
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
@@ -42,22 +24,25 @@ public class ConcertItem {
     @Column(name = "create_time")
     private Date createTime;
 
+    @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "song_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
+    @JsonView(Details.class)
     // @MapsId
     private Song song;
 
+    @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "concert_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    @JsonBackReference
+    @JsonBackReference(value = "concert-item")
     private Concert concert;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(name = "concert_group_id", nullable = true)
     @OnDelete(action = OnDeleteAction.NO_ACTION)
-    @JsonBackReference
+    @JsonBackReference(value = "group-item")
     private ConcertGroup concertGroup;
 
     @Column(name = "order_value")

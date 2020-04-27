@@ -4,8 +4,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import songbook.concert.entity.Concert;
-import songbook.user.entity.User;
 
 import java.util.List;
 import java.util.Optional;
@@ -20,15 +20,27 @@ public interface ConcertDao extends JpaRepository<Concert, Long> {
             "LEFT JOIN FETCH e.items i " +
             "LEFT JOIN FETCH i.song s " +
             "LEFT JOIN FETCH s.headers h " +
-            "WHERE e.id=:id AND h.type=songbook.song.entity.SongContentTypeEnum.HEADER AND h.user=:user"
+            "LEFT JOIN FETCH s.tags t " +
+            "WHERE e.id=:id"
     )
-    Optional<Concert> findByIdWithHeaders(Long id, User user);
+    Optional<Concert> findByIdWithHeadersAndTags(@Param("id") long id);
+
+    @Query("SELECT e from Concert e " +
+            "LEFT JOIN FETCH e.items i " +
+            "LEFT JOIN FETCH i.song s " +
+            "LEFT JOIN FETCH s.headers h " +
+            "LEFT JOIN FETCH s.tags t " +
+            "ORDER BY e.createTime DESC"
+    )
+    List<Concert> findLastConcertWithHeadersAndTags(Pageable page);
 
     @Override
-    @Query
-    public List<Concert> findAll();
+    @Query("SELECT e FROM Concert e " +
+            "ORDER BY e.createTime DESC")
+    List<Concert> findAll();
 
     @Override
-    @Query
-    public Page<Concert> findAll(Pageable var);
+    @Query("SELECT e FROM Concert e " +
+            "ORDER BY e.createTime DESC")
+    Page<Concert> findAll(Pageable page);
 }

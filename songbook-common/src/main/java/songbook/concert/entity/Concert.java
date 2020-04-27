@@ -4,19 +4,17 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
 import javax.persistence.Entity;
-import javax.persistence.NamedQuery;
+import javax.persistence.OrderBy;
 
 import org.hibernate.annotations.*;
 import java.util.Date;
 import java.util.Set;
-
 import songbook.user.entity.User;
 import com.fasterxml.jackson.annotation.*;
 import songbook.concert.view.Summary;
 import songbook.concert.view.Details;
 
 @Entity
-@NamedQuery(name = "Concert.findAll", query="select c from Concert c order by c.id")
 public class Concert {
 
     @Id
@@ -29,9 +27,15 @@ public class Concert {
     @JsonView(Summary.class)
     private Date createTime;
 
-    @Column(nullable = false)
     @JsonView(Summary.class)
     private Date time;
+
+    @JsonView(Summary.class)
+    private String title;
+
+    @Type(type = "org.hibernate.type.NumericBooleanType")
+    @Column(name="is_draft", nullable = false, columnDefinition = "tinyint unsigned default 0")
+    private boolean isDraft;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id")
@@ -43,6 +47,8 @@ public class Concert {
     private long sbV1Id;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "concert")
+    @Fetch(FetchMode.SUBSELECT)
+    @OrderBy("orderValue")
     @JsonView(Details.class)
     private Set<ConcertItem> items;
 
@@ -88,6 +94,24 @@ public class Concert {
 
     public Concert setSbV1Id(long sbV1Id) {
         this.sbV1Id = sbV1Id;
+        return this;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public Concert setTitle(String title) {
+        this.title = title;
+        return this;
+    }
+
+    public boolean getIsDraft() {
+        return isDraft;
+    }
+
+    public Concert setIsDraft(boolean draft) {
+        isDraft = draft;
         return this;
     }
 

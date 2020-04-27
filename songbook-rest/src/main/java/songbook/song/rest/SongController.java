@@ -15,6 +15,7 @@ import songbook.song.service.SongService;
 import songbook.song.service.SongServiceException;
 import songbook.song.view.Details;
 import songbook.song.view.HeaderSummary;
+import songbook.song.view.HeaderTagSummary;
 import songbook.song.view.Summary;
 import songbook.tag.entity.Tag;
 import songbook.tag.repository.TagDao;
@@ -24,6 +25,7 @@ import songbook.user.repository.UserDao;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -54,17 +56,36 @@ public class SongController extends BaseController {
 
 
     @GetMapping("")
-    @JsonView(HeaderSummary.class)
+    @JsonView(HeaderTagSummary.class)
     public Page<Song> findSongsByHeader(@RequestParam(required = false, name = "search") String search, Pageable pageable) throws ResponseStatusException {
         initFilters();
 
         if (search == null || search.length() < 2) {
-            Page<Song> page = songDao.findAll(pageable);
-            System.out.println(page.getNumber() + " found");
+            System.out.println("Find all");
+            Page<Song> page = songDao.findAllWithHeadersAndTags(pageable);
+            System.out.println(page.getTotalElements() + " found");
             return page;
 
         } else {
-            return songDao.findAllByHeaderWithHeaders(search, pageable);
+            System.out.println("Find by title cont");
+
+            System.out.println("Search string: ");
+            System.out.println(search);
+            // return songDao.findAllByTitleContaining(search, pageable);
+            return songDao.findAllByHeaderWithHeadersAndTags(search, pageable);
+        }
+    }
+
+    @GetMapping("/tags")
+    @JsonView(HeaderTagSummary.class)
+    public Page<Song> findSongsByTags(@RequestParam("ids") List<Long> ids, @RequestParam(required=false, name="search") String search, Pageable pageable) throws ResponseStatusException {
+        initFilters();
+        if (search == null || search.length() < 2) {
+            System.out.println("Find all by tags");
+            return songDao.findAllByTags(ids, pageable);
+        } else {
+            System.out.println("Find all by tags AND header");
+            return songDao.findAllByTagsAndContent(ids, search, pageable);
         }
     }
 
@@ -129,7 +150,10 @@ public class SongController extends BaseController {
         song.getTags().remove(tag);
         songDao.save(song);
 
-        return song;
+        songDao.refresh(song);
+        // to return tags in right order, re-read the song
+        Optional<Song> songOptUpdated = songDao.findById(songId);
+        return songOptUpdated.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Song is not found"));
     }
 
     @PatchMapping("syncCloudContent/{songId}")

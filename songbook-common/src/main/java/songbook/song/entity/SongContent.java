@@ -63,6 +63,7 @@ public class SongContent {
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id")
+ //   @JsonIgnore // required for post!
     @OnDelete(action = OnDeleteAction.NO_ACTION)
 //    @JsonIgnore
     private User user;

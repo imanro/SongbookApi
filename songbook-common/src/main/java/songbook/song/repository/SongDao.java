@@ -33,35 +33,62 @@ public interface SongDao extends JpaRepository<Song, Long>, SongDaoCustom {
             @Param("id") long songID
     );
 
-    @Query("SELECT distinct e FROM Song e " // +
+    @Query("SELECT distinct e FROM Song e " +
+            "LEFT JOIN FETCH e.headers h " +
+            "LEFT JOIN FETCH e.tags t " +
+            "ORDER BY e.createTime DESC"
             )
-    List<Song> findAllWithHeaders();
+    List<Song> findAllWithHeadersAndTags();
 
     @Query(
             value="SELECT distinct e FROM Song e " +
-            "LEFT JOIN FETCH e.headers h ",
-            countQuery="SELECT distinct e FROM Song e ")
-    Page<Song> findAllWithHeaders(
+            "LEFT JOIN FETCH e.headers h " +
+            "LEFT JOIN FETCH e.tags t " +
+            "ORDER BY e.createTime DESC ",
+            countQuery="SELECT count(e) FROM Song e ")
+    Page<Song> findAllWithHeadersAndTags(
             Pageable pageable
     );
 
     @Query("SELECT distinct e FROM Song e " +
             "LEFT JOIN FETCH e.headers h " +
-            "WHERE h.content LIKE '%' || :searchString || '%'")
-    List<Song> findAllByHeaderWithHeaders(
+            "LEFT JOIN FETCH e.tags t " +
+            "WHERE h.content LIKE '%' || :searchString || '%' " +
+            "ORDER BY e.createTime DESC ")
+    List<Song> findAllByHeaderWithHeadersAndTags(
             @Param("searchString") String searchString
     );
 
     @Query(value="SELECT distinct e FROM Song e " +
             "LEFT JOIN FETCH e.headers h " +
-            "WHERE h.content LIKE '%' || :searchString || '%'",
+            "LEFT JOIN FETCH e.tags t " +
+            "WHERE h.content LIKE '%' || :searchString || '%' " +
+            "ORDER BY e.createTime DESC ",
     countQuery="SELECT count(e) FROM Song e LEFT JOIN e.headers h WHERE h.content LIKE '%' || :searchString || '%'")
-    Page<Song> findAllByHeaderWithHeaders(
+    Page<Song> findAllByHeaderWithHeadersAndTags(
             @Param("searchString") String searchString,
             Pageable pageable
     );
 
-    Song findBySbV1Id(int sbV1Id);
+    Song findByCode(String code);
 
-    Song findByCode(String Code);
+    // ManyToMany search!!!
+    @Query(value="SELECT e FROM Song e " +
+            "LEFT JOIN FETCH e.headers h " +
+            "LEFT JOIN FETCH e.tags t where t.id IN :ids " +
+            "ORDER BY e.createTime DESC ",
+            countQuery = "SELECT COUNT(e) FROM Song e " +
+                    "JOIN e.tags t WHERE t.id IN :ids")
+    Page<Song> findAllByTags(@Param("ids") List<Long> ids, Pageable pageable);
+
+    @Query(value="SELECT e FROM Song e " +
+            "LEFT JOIN FETCH e.headers h " +
+            "LEFT JOIN FETCH e.tags t " +
+            "WHERE t.id IN :ids AND h.content LIKE '%' || :searchString || '%' " +
+            "ORDER BY e.createTime DESC ",
+            countQuery = "SELECT COUNT(e) FROM Song e " +
+                    "LEFT JOIN e.tags t " +
+                    "LEFT JOIN e.headers h " +
+                    "WHERE t.id IN :ids AND h.content LIKE '%' || :searchString || '%'")
+    Page<Song> findAllByTagsAndContent(@Param("ids") List<Long> ids, @Param("searchString") String searchString, Pageable pageable);
 }
