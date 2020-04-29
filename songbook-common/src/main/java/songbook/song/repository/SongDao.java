@@ -75,7 +75,9 @@ public interface SongDao extends JpaRepository<Song, Long>, SongDaoCustom {
     // ManyToMany search!!!
     @Query(value="SELECT e FROM Song e " +
             "LEFT JOIN FETCH e.headers h " +
-            "LEFT JOIN FETCH e.tags t where t.id IN :ids " +
+            "LEFT JOIN FETCH e.tags t " +
+            "LEFT JOIN e.tags ts " + // twise join because otherwise we'll only get the tag we sarch, in collection
+            "WHERE ts.id IN :ids " +
             "ORDER BY e.createTime DESC ",
             countQuery = "SELECT COUNT(e) FROM Song e " +
                     "JOIN e.tags t WHERE t.id IN :ids")
@@ -84,7 +86,8 @@ public interface SongDao extends JpaRepository<Song, Long>, SongDaoCustom {
     @Query(value="SELECT e FROM Song e " +
             "LEFT JOIN FETCH e.headers h " +
             "LEFT JOIN FETCH e.tags t " +
-            "WHERE t.id IN :ids AND h.content LIKE '%' || :searchString || '%' " +
+            "LEFT JOIN e.tags ts " + // twise join because otherwise we'll only get the tag we sarch, in collection
+            "WHERE ts.id IN :ids AND h.content LIKE '%' || :searchString || '%' " +
             "ORDER BY e.createTime DESC ",
             countQuery = "SELECT COUNT(e) FROM Song e " +
                     "LEFT JOIN e.tags t " +
