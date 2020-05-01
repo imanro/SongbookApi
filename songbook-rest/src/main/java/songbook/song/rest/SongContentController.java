@@ -46,7 +46,7 @@ public class SongContentController {
     }
 
     @PostMapping("")
-    public Object createSongContent(@RequestBody @Valid SongContent newContent, BindingResult bindingResult) throws ResponseStatusException {
+    public Object create(@RequestBody @Valid SongContent newContent, BindingResult bindingResult) throws ResponseStatusException {
 
         if (bindingResult.hasErrors()) {
             Errors errors = new Errors("Bad request!");

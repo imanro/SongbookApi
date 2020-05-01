@@ -13,6 +13,8 @@ import songbook.concert.entity.Concert;
 import songbook.concert.entity.ConcertItem;
 import songbook.concert.repository.ConcertDao;
 import songbook.concert.repository.ConcertItemDao;
+import songbook.concert.service.ConcertService;
+import songbook.concert.service.ConcertServiceException;
 import songbook.rest.model.Errors;
 import songbook.song.repository.SongDao;
 import songbook.song.service.SongService;
@@ -27,6 +29,7 @@ import javax.validation.Valid;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @RestController
 @RequestMapping("/concert")
@@ -37,6 +40,9 @@ public class ConcertController extends BaseController  {
 
     @Autowired
     private ConcertItemDao concertItemDao;
+
+    @Autowired
+    ConcertService concertService;
 
 
     @Autowired
@@ -91,17 +97,34 @@ public class ConcertController extends BaseController  {
             Errors errors = new Errors("Bad request!");
             errors.convertFieldErrors(bindingResult.getFieldErrors());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
+
         } else {
 
             // auto-assign order-value
+            // todo: this -> into service
             if (concertItem.getOrderValue() == 0) {
-                Concert checkConcert = concertDao.findById(concertItem.getConcert().getId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "concert was not found"));
-                int lastOrder = checkConcert.getItems().size();
-                concertItem.setOrderValue(lastOrder);
+                try {
+                    this.concertService.setNewConcertItemOrderValue(concertItem);
+                } catch(ConcertServiceException e) {
+                    throw new ResponseStatusException(HttpStatus.NOT_FOUND, "An error has occurred while setting the new item's orderValue");
+                }
             }
 
             return concertItemDao.save(concertItem);
         }
+    }
+
+    // When a client needs to replace an existing Resource entirely, they can use PUT. When they're doing a partial update, they can use HTTP PATCH.
+    @PutMapping("item/bulk")
+    public List<ConcertItem> updateConcertItemsBulk(@RequestBody List<ConcertItem> items) throws ResponseStatusException {
+
+        System.out.println(items.size() + ": the size");
+
+        // auto assign order-values
+        // todo: this -> into service
+        concertService.setConcertItemsOrderValues(items);
+
+        return concertItemDao.saveAll(items);
     }
 
     @PostMapping("")
