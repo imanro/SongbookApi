@@ -5,11 +5,14 @@ import org.springframework.stereotype.Service;
 import songbook.cloud.CloudException;
 import songbook.cloud.entity.CloudFile;
 import songbook.cloud.repository.CloudDao;
+import songbook.concert.entity.ConcertItem;
+import songbook.concert.repository.ConcertItemDao;
 import songbook.song.entity.Song;
 import songbook.song.entity.SongContent;
 import songbook.song.entity.SongContentTypeEnum;
 import songbook.song.repository.SongDao;
 import songbook.song.repository.SongContentDao;
+import songbook.tag.entity.Tag;
 import songbook.user.entity.User;
 
 import javax.transaction.Transactional;
@@ -29,11 +32,47 @@ public class SongServiceImpl implements SongService {
     private SongContentDao songContentDao;
 
     @Autowired
+    private ConcertItemDao concertItemDao;
+
+    @Autowired
     private CloudDao cloudDao;
 
     @Override
-    public int mergeSongs(long masterID, List<Long> toMerge) {
-        return 0;
+    public boolean mergeSong(Song mergedSong, Song masterSong) {
+
+        // take all merged song's content,
+        Set<SongContent> songContents =  mergedSong.getContent();
+
+        // take all concertItems by merged song
+        List<ConcertItem> concertItems =  concertItemDao.findBySongId(mergedSong.getId());
+
+        // take all tags of merged song
+        Set<Tag> tags = mergedSong.getTags();
+
+        // re-assign song of contents
+        songContents.stream().forEach(songContent -> {
+            songContent.setSong(masterSong);
+            songContentDao.save(songContent);
+        });
+
+        // re-assign concert items
+        concertItems.stream().forEach(concertItem -> {
+            concertItem.setSong(masterSong);
+            concertItemDao.save(concertItem);
+        });
+
+        // re-assign tags
+        tags.stream().forEach(tag -> {
+           masterSong.getTags().add(tag);
+        });
+
+        songDao.save(masterSong);
+
+        songDao.flush();
+
+        // otherwise the delete won't work
+        songDao.deleteAtOnce(mergedSong.getId());
+        return true;
     }
 
     @Override

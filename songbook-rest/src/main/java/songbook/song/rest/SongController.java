@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import songbook.common.controller.BaseController;
@@ -25,7 +26,9 @@ import songbook.user.repository.UserDao;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -126,6 +129,22 @@ public class SongController extends BaseController {
         }
 
         return songOptUpdated.get();
+    }
+
+    @PostMapping("merge/{mergedId}/{masterId}")
+    public ResponseEntity<Map<String, String>> mergeSong(@PathVariable("mergedId") Long mergedId, @PathVariable("masterId") Long masterId) throws ResponseStatusException {
+
+        Song masterSong = songDao.findById(masterId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "The master song wasn't found"));
+        Song mergedSong = songDao.findById(mergedId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "The merged song wasn't found"));
+
+        try {
+            songService.mergeSong(mergedSong, masterSong);
+        } catch(Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Unable to merge the songs due to exception: " + e.getMessage());
+        }
+
+        Map<String, String> response = new HashMap<String, String>(){{put("result", "ok");}};
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @DeleteMapping("{songId}/tags/{tagId}")

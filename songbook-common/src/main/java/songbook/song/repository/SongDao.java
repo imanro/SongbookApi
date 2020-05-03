@@ -1,6 +1,7 @@
 package songbook.song.repository;
 
 
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -94,4 +95,8 @@ public interface SongDao extends JpaRepository<Song, Long>, SongDaoCustom {
                     "LEFT JOIN e.headers h " +
                     "WHERE t.id IN :ids AND h.content LIKE '%' || :searchString || '%'")
     Page<Song> findAllByTagsAndContent(@Param("ids") List<Long> ids, @Param("searchString") String searchString, Pageable pageable);
+
+    @Modifying
+    @Query("delete from Song t where t.id = ?1")
+    void deleteAtOnce(Long entityId);
 }

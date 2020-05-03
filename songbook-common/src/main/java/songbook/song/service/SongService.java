@@ -12,5 +12,5 @@ public interface SongService {
 
     CloudFile createCloudContentFromSongContent(SongContent content) throws SongServiceException;
 
-    int mergeSongs(long masterID, List<Long> toMerge);
+    boolean mergeSong(Song mergedSong, Song masterSong);
 }

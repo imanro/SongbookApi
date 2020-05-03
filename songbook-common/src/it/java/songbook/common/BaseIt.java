@@ -10,6 +10,10 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
 
 public abstract class BaseIt {
 
@@ -40,6 +44,15 @@ public abstract class BaseIt {
         userDao.save(user);
 
         return user;
+    }
+
+    protected Date parseDateString(String dateString) {
+        LocalDateTime localDate = LocalDateTime.parse(
+                dateString,
+                DateTimeFormatter.ofPattern( "uuuu-MM-dd HH:mm:ss" )
+        );
+
+        return Date.from( localDate.atZone( ZoneId.systemDefault()).toInstant());
     }
 
 }
