@@ -53,8 +53,9 @@ public interface SongDao extends JpaRepository<Song, Long>, SongDaoCustom {
 
     @Query("SELECT distinct e FROM Song e " +
             "LEFT JOIN FETCH e.headers h " +
+            "LEFT JOIN e.headers hs " +
             "LEFT JOIN FETCH e.tags t " +
-            "WHERE h.content LIKE '%' || :searchString || '%' " +
+            "WHERE hs.content LIKE '%' || :searchString || '%' " +
             "ORDER BY e.createTime DESC ")
     List<Song> findAllByHeaderWithHeadersAndTags(
             @Param("searchString") String searchString
@@ -62,8 +63,9 @@ public interface SongDao extends JpaRepository<Song, Long>, SongDaoCustom {
 
     @Query(value="SELECT distinct e FROM Song e " +
             "LEFT JOIN FETCH e.headers h " +
+            "LEFT JOIN e.headers hs " +
             "LEFT JOIN FETCH e.tags t " +
-            "WHERE h.content LIKE '%' || :searchString || '%' " +
+            "WHERE hs.content LIKE '%' || :searchString || '%' " +
             "ORDER BY e.createTime DESC ",
     countQuery="SELECT count(e) FROM Song e LEFT JOIN e.headers h WHERE h.content LIKE '%' || :searchString || '%'")
     Page<Song> findAllByHeaderWithHeadersAndTags(

@@ -35,6 +35,8 @@ public interface SongSuggestDao extends JpaRepository<ConcertItem, Long> {
             countQuery = "SELECT count(1) FROM ConcertItem ci1 JOIN Concert c ON c=ci1.concert LEFT JOIN ConcertItem ci2 ON ci1.song=ci2.song AND ci2.createTime > :fromDate WHERE c.user=:user AND ci2.id IS NULL GROUP BY ci1.song HAVING count(1) >= :performancesAmount")
     Page<SongCountProj> findAbandonedSongs(Pageable page, @Param("user") User user, @Param("fromDate") Date fromDate, @Param("performancesAmount") long performancesAmount);
 
+    // + recently used songs
+
     @Query(value="SELECT ci2.song as song from ConcertItem ci1 JOIN Concert c ON c=ci1.concert LEFT JOIN ConcertItem ci2 ON ci2.concert=ci1.concert AND ci2.orderValue = ci1.orderValue - 1 WHERE c.user=:user AND ci1.song=:sampleSong AND ci2.song IS NOT NULL GROUP BY ci2.song ORDER BY function('RAND')",
             countQuery = "SELECT count(1) from ConcertItem ci1 JOIN Concert c ON c=ci1.concert LEFT JOIN ConcertItem ci2 ON ci2.concert=ci1.concert AND ci2.orderValue = ci1.orderValue - 1 WHERE c.user=:user AND ci1.song=:sampleSong AND ci2.song IS NOT NULL GROUP BY ci2.song")
     Page<SongProj> findSongsBefore(Pageable page, @Param("user") User user, @Param("sampleSong") Song sampleSong);
