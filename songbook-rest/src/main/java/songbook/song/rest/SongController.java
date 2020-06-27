@@ -57,7 +57,16 @@ public class SongController extends BaseController {
         return songDao.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "item not found"));
     }
 
+    @GetMapping("multiple")
+    public List<Song> getSongsByIds(@RequestParam(name="ids") List<Long> ids)
+    {
+        initFilters();
+        List<Song> songs  = songDao.findAllById(ids);
+        return songs;
+    }
 
+
+    // TODO: rename to /search
     @GetMapping("")
     @JsonView(HeaderTagSummary.class)
     public Page<Song> findSongsByHeader(@RequestParam(required = false, name = "search") String search, Pageable pageable) throws ResponseStatusException {
