@@ -12,9 +12,9 @@ import songbook.content.service.PdfProcessorException;
 import songbook.rest.model.Errors;
 import songbook.song.entity.SongContent;
 import songbook.song.repository.SongContentDao;
+import songbook.util.list.ListSort;
 
 import javax.validation.Valid;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -25,12 +25,21 @@ import java.util.Map;
 @RequestMapping("/song-content")
 public class SongContentController {
 
-    @Autowired
-    private SongContentDao songContentDao;
+    private final SongContentDao songContentDao;
+
+    private final PdfProcessor pdfProcessor;
+
+    private final ListSort<SongContent> listSortUtil;
 
     @Autowired
-    private PdfProcessor pdfProcessor;
-
+    public SongContentController(
+            SongContentDao songContentDao,
+            PdfProcessor pdfProcessor,
+            ListSort<SongContent> listSortUtil) {
+        this.songContentDao = songContentDao;
+        this.pdfProcessor = pdfProcessor;
+        this.listSortUtil = listSortUtil;
+    }
 
     @GetMapping("{id}")
     @ResponseBody
@@ -42,6 +51,7 @@ public class SongContentController {
     public List<SongContent> getContentsByIds(@RequestParam List<Long> ids)
     {
         List<SongContent> songContents  = songContentDao.findAllById(ids);
+        listSortUtil.sortListEntitiesByIds(songContents, ids);
         return songContents;
     }
 
@@ -79,6 +89,17 @@ public class SongContentController {
     public ResponseEntity<byte[]> pdfCompile(@RequestParam List<Long> ids) {
 
         List<SongContent> songContents  = songContentDao.findAllById(ids);
+        listSortUtil.sortListEntitiesByIds(songContents, ids);
+
+        System.out.println("The order of ids is follow:");
+        for (int i = 0; i < ids.size(); i++) {
+            System.out.println(ids.get(i) + "!!");
+        }
+
+        System.out.println("The order of content is follow:");
+        for (int i = 0; i < songContents.size(); i++) {
+            System.out.println(songContents.get(i).getId() + "!!");
+        }
 
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", "application/pdf");
@@ -102,7 +123,13 @@ public class SongContentController {
             return new ResponseEntity<>(bytes, headers, HttpStatus.OK);
 
         } catch(PdfProcessorException e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+            String message;
+            if(e.getCause() != null) {
+                message = e.getMessage() + "[" + e.getCause().getMessage() + "]";
+            } else {
+                message = e.getMessage();
+            }
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, message);
         }
     }
 

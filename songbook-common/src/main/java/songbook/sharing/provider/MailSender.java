@@ -117,9 +117,8 @@ public class MailSender {
         props.put("mail.smtp.auth", "true");
         props.put("mail.smtp.host", properties.getMailSmtpHost());
         props.put("mail.smtp.port", properties.getMailSmtpPort());
-        //        props.put("mail.debug", "true");
+        props.put("mail.debug", "true");
         props.put("mail.smtp.starttls.enable", "true");
-
 
         this.mailSession = Session.getInstance(props,
                 new javax.mail.Authenticator() {

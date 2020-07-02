@@ -23,6 +23,7 @@ import songbook.tag.repository.TagDao;
 import songbook.user.entity.User;
 import songbook.song.repository.SongDao;
 import songbook.user.repository.UserDao;
+import songbook.util.list.ListSort;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -35,20 +36,31 @@ import java.util.Optional;
 @RequestMapping("/song")
 public class SongController extends BaseController {
 
-    @Autowired
-    private SongDao songDao;
+    private final SongDao songDao;
 
-    @Autowired
-    private UserDao userDao;
+    private final UserDao userDao;
 
-    @Autowired
-    private TagDao tagDao;
+    private final TagDao tagDao;
 
-    @Autowired
-    private SongService songService;
+    private final SongService songService;
 
-    @PersistenceContext
-    private EntityManager em;
+    private final EntityManager em;
+
+    private final ListSort<Song> listSortUtil;
+
+    public SongController(SongDao songDao,
+                          UserDao userDao,
+                          TagDao tagDao,
+                          SongService songService,
+                          EntityManager em,
+                          ListSort<Song> listSortUtil) {
+        this.songDao = songDao;
+        this.userDao = userDao;
+        this.tagDao = tagDao;
+        this.songService = songService;
+        this.em = em;
+        this.listSortUtil = listSortUtil;
+    }
 
     @GetMapping("{id}")
     @ResponseBody
@@ -61,7 +73,9 @@ public class SongController extends BaseController {
     public List<Song> getSongsByIds(@RequestParam(name="ids") List<Long> ids)
     {
         initFilters();
+        // !!! order not guaranteed!!
         List<Song> songs  = songDao.findAllById(ids);
+        this.listSortUtil.sortListEntitiesByIds(songs, ids);
         return songs;
     }
 

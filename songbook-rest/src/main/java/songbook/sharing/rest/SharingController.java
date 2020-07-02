@@ -14,6 +14,7 @@ import songbook.sharing.service.SharingServiceException;
 import songbook.song.entity.SongContent;
 import songbook.song.repository.SongContentDao;
 import songbook.user.entity.User;
+import songbook.util.list.ListSort;
 
 import javax.validation.Valid;
 import java.util.ArrayList;
@@ -25,11 +26,21 @@ import java.util.Map;
 @RequestMapping("/sharing")
 public class SharingController extends BaseController {
 
-    @Autowired
-    SongContentDao songContentDao;
+    private SongContentDao songContentDao;
+
+    private SharingService sharingService;
+
+    private ListSort<SongContent> listSortUtil;
 
     @Autowired
-    SharingService sharingService;
+    public SharingController(
+            SongContentDao songContentDao,
+            SharingService sharingService,
+            ListSort<SongContent> listSortUtil) {
+        this.songContentDao = songContentDao;
+        this.sharingService = sharingService;
+        this.listSortUtil = listSortUtil;
+    }
 
     @PostMapping("send-song-content-mail")
     @ResponseBody
@@ -47,6 +58,8 @@ public class SharingController extends BaseController {
 
         if(request.getContentIds() != null && request.getContentIds().size() > 0) {
             contents = songContentDao.findAllById(request.getContentIds());
+            listSortUtil.sortListEntitiesByIds(contents, request.getContentIds());
+
         } else {
             // allow not to send anything
              contents = new ArrayList<>();

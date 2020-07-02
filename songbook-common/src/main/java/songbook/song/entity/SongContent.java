@@ -1,6 +1,7 @@
 package songbook.song.entity;
 
 import org.hibernate.annotations.*;
+import songbook.common.entity.BaseEntity;
 import songbook.user.entity.User;
 
 import javax.persistence.*;
@@ -14,7 +15,7 @@ import com.fasterxml.jackson.annotation.*;
 @Entity
 @FilterDef(name="headerType", parameters=@ParamDef( name="type", type="string" ), defaultCondition ="type=:type")
 @FilterDef(name="contentUser", parameters=@ParamDef( name="userId", type="long" ), defaultCondition ="user_id=:userId")
-public class SongContent {
+public class SongContent extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)

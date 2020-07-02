@@ -222,14 +222,14 @@ public class GDrive implements CloudDriver {
                 getService().files().export(file.getId(), targetMimeType)
                         .executeMediaAndDownloadTo(outputStream);
             } catch (IOException e) {
-                throw new CloudDriverException("Could not get file contents, an exception has occurred", e);
+                throw new CloudDriverException("Could not get file contents, an exception has occurred (" + e.getMessage() + ")", e);
             }
         } else {
             try {
                 getService().files().get(file.getId())
                         .executeMediaAndDownloadTo(outputStream);
             } catch (IOException e) {
-                throw new CloudDriverException("Could not get file contents, an exception has occurred", e);
+                throw new CloudDriverException("Could not get file contents, an exception has occurred (" + e.getMessage() + ")", e);
             }
         }
 
@@ -290,7 +290,7 @@ public class GDrive implements CloudDriver {
             }
 
         } catch(IOException e) {
-            throw new CloudDriverException("Unable to find Root folder", e);
+            throw new CloudDriverException("Unable to find Root folder (" + e.getMessage() + ")", e);
         }
     }
 

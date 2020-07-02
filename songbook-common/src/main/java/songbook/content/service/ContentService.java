@@ -105,7 +105,7 @@ public class ContentService {
         try {
             bs = cloudDao.getFileContents(cloudFile);
         } catch (CloudException e) {
-            throw new ContentServiceException("Unable to download song content, an exception occurred when downloading a content", e);
+            throw new ContentServiceException("Unable to download song content, an exception occurred when downloading a content (" + e.getMessage() + ")", e);
         }
 
         return bs.toByteArray();
