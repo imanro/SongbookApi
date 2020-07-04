@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import songbook.concert.entity.ConcertItem;
-import songbook.song.entity.Song;
+import songbook.domain.song.entity.Song;
 import songbook.suggest.entity.SongCountProj;
 import songbook.suggest.entity.SongProj;
 import songbook.suggest.entity.PopularSongProj;

@@ -1,10 +1,8 @@
 package songbook.song.service;
 import songbook.cloud.entity.CloudFile;
-import songbook.song.entity.Song;
+import songbook.domain.song.entity.Song;
 import songbook.song.entity.SongContent;
 import songbook.user.entity.User;
-
-import java.util.List;
 
 public interface SongService {
 

@@ -1,7 +1,14 @@
-package songbook.song.entity;
+package songbook.domain.song.entity;
+
+import songbook.common.entity.BaseEntity;
+import songbook.song.entity.SongContent;
+import songbook.song.view.HeaderSummary;
+import songbook.song.view.HeaderTagSummary;
+import songbook.util.view.Summary;
+import songbook.song.view.Details;
+import songbook.tag.entity.Tag;
 
 import org.hibernate.annotations.*;
-
 import javax.persistence.*;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -10,14 +17,7 @@ import javax.xml.bind.DatatypeConverter;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
-
 import com.fasterxml.jackson.annotation.*;
-import songbook.common.entity.BaseEntity;
-import songbook.song.view.HeaderSummary;
-import songbook.song.view.HeaderTagSummary;
-import songbook.util.view.Summary;
-import songbook.song.view.Details;
-import songbook.tag.entity.Tag;
 
 @Entity
 public class Song extends BaseEntity {

@@ -1,6 +1,6 @@
 package songbook.song.repository;
 
-import songbook.song.entity.Song;
+import songbook.domain.song.entity.Song;
 import songbook.user.entity.User;
 
 public interface SongDaoCustom {

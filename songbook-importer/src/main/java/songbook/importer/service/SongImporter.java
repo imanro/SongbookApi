@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 import songbook.importer.dao.source.SongSrcDao;
-import songbook.song.entity.Song;
+import songbook.domain.song.entity.Song;
 import songbook.song.repository.SongDao;
 
 @Service

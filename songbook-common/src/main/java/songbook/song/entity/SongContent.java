@@ -2,6 +2,7 @@ package songbook.song.entity;
 
 import org.hibernate.annotations.*;
 import songbook.common.entity.BaseEntity;
+import songbook.domain.song.entity.Song;
 import songbook.user.entity.User;
 
 import javax.persistence.*;

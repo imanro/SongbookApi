@@ -12,7 +12,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import songbook.cloud.CloudException;
 import songbook.cloud.entity.CloudFile;
 import songbook.cloud.repository.CloudDao;
-import songbook.song.entity.Song;
+import songbook.domain.song.entity.Song;
 import songbook.song.entity.SongContent;
 import songbook.song.entity.SongContentTypeEnum;
 import songbook.song.repository.SongContentDao;

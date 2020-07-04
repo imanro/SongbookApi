@@ -2,7 +2,7 @@ package songbook.song.repository;
 
 import org.hibernate.Session;
 import org.springframework.transaction.annotation.Transactional;
-import songbook.song.entity.Song;
+import songbook.domain.song.entity.Song;
 import songbook.user.entity.User;
 
 import javax.persistence.EntityManager;

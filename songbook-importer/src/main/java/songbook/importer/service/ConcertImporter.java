@@ -11,7 +11,7 @@ import songbook.importer.dao.source.ConcertItemSrcDao;
 import songbook.concert.repository.ConcertDao;
 import songbook.concert.repository.ConcertGroupDao;
 import songbook.concert.repository.ConcertItemDao;
-import songbook.song.entity.Song;
+import songbook.domain.song.entity.Song;
 import songbook.song.repository.SongDao;
 import songbook.user.entity.User;
 

@@ -1,7 +1,6 @@
 package songbook.suggest.rest;
 
 import com.fasterxml.jackson.annotation.JsonView;
-import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -12,8 +11,7 @@ import org.springframework.web.server.ResponseStatusException;
 import songbook.common.controller.BaseController;
 import songbook.concert.entity.Concert;
 import songbook.concert.repository.ConcertDao;
-import songbook.song.entity.Song;
-import songbook.song.entity.SongContentTypeEnum;
+import songbook.domain.song.entity.Song;
 import songbook.song.repository.SongDao;
 import songbook.suggest.entity.SongCountProj;
 import songbook.suggest.entity.SongProj;
@@ -25,7 +23,6 @@ import songbook.user.entity.User;
 import songbook.user.repository.UserDao;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;

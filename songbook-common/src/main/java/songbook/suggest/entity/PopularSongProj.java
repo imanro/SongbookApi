@@ -2,7 +2,7 @@ package songbook.suggest.entity;
 
 import org.springframework.beans.factory.annotation.Value;
 import songbook.concert.entity.Concert;
-import songbook.song.entity.Song;
+import songbook.domain.song.entity.Song;
 
 // Open interface
 // public class SongStatProj {

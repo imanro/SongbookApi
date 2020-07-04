@@ -3,13 +3,10 @@ package songbook.cloud.repository;
 import org.junit.jupiter.api.Assertions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.junit.jupiter.api.BeforeEach;
-import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
-import org.springframework.test.context.TestPropertySource;
 import songbook.cloud.CloudException;
 import songbook.cloud.entity.CloudFile;
-import songbook.song.entity.Song;
+import songbook.domain.song.entity.Song;
 
 import java.io.*;
 import java.util.List;

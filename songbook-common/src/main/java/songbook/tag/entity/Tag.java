@@ -2,7 +2,7 @@ package songbook.tag.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
-import songbook.song.entity.Song;
+import songbook.domain.song.entity.Song;
 import songbook.util.view.Summary;
 
 import javax.persistence.*;

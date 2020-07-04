@@ -1,7 +1,7 @@
 package songbook.suggest.entity;
 
 import songbook.concert.entity.Concert;
-import songbook.song.entity.Song;
+import songbook.domain.song.entity.Song;
 
 public class PopularSongProjImpl implements PopularSongProj {
 

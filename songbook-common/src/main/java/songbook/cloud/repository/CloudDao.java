@@ -4,7 +4,7 @@ import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import songbook.cloud.CloudException;
 import songbook.cloud.driver.CloudDriver;
 import songbook.cloud.entity.CloudFile;
-import songbook.song.entity.Song;
+import songbook.domain.song.entity.Song;
 import org.springframework.stereotype.Repository;
 import org.springframework.beans.factory.annotation.Autowired;
 import songbook.cloud.driver.GDrive;

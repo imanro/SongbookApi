@@ -3,7 +3,7 @@ package songbook.importer.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import songbook.importer.dao.source.SongContentSrcDao;
-import songbook.song.entity.Song;
+import songbook.domain.song.entity.Song;
 import songbook.song.entity.SongContent;
 import songbook.song.entity.SongContentTypeEnum;
 import songbook.song.repository.SongContentDao;

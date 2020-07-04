@@ -3,7 +3,7 @@ package songbook.util.list;
 import static org.junit.jupiter.api.Assertions.*;
 
 import songbook.common.entity.BaseEntity;
-import songbook.song.entity.Song;
+import songbook.domain.song.entity.Song;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

@@ -1,167 +1,141 @@
 package songbook.song.rest;
 
+import songbook.common.controller.BaseController;
+import songbook.domain.song.port.in.*;
+import songbook.domain.song.entity.Song;
+import songbook.domain.song.usecase.SearchSongsByTagsAndStringQuery;
+import songbook.song.view.Details;
+import songbook.song.view.HeaderTagSummary;
+import songbook.user.entity.User;
+
 import com.fasterxml.jackson.annotation.JsonView;
-import org.hibernate.Session;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
-import songbook.common.controller.BaseController;
-import songbook.song.entity.Song;
-import songbook.song.entity.SongContentTypeEnum;
-import songbook.song.service.SongService;
-import songbook.song.service.SongServiceException;
-import songbook.song.view.Details;
-import songbook.song.view.HeaderSummary;
-import songbook.song.view.HeaderTagSummary;
-import songbook.song.view.Summary;
-import songbook.tag.entity.Tag;
-import songbook.tag.repository.TagDao;
-import songbook.user.entity.User;
-import songbook.song.repository.SongDao;
-import songbook.user.repository.UserDao;
-import songbook.util.list.ListSort;
-
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/song")
 public class SongController extends BaseController {
 
-    private final SongDao songDao;
+    // Refactoring
+    private final SongByIdQuery songByIdQuery;
 
-    private final UserDao userDao;
+    private final SongsByIdsQuery songsByIdsQuery;
 
-    private final TagDao tagDao;
+    private final SearchSongsByStringQuery searchSongsByStringQuery;
 
-    private final SongService songService;
+    private final SearchSongsByTagsAndStringQuery searchSongsByTagsAndStringQuery;
 
-    private final EntityManager em;
+    private final CreateSongCommand createSongCommand;
 
-    private final ListSort<Song> listSortUtil;
+    private final AttachSongToTagCommand attachSongToTagCommand;
 
-    public SongController(SongDao songDao,
-                          UserDao userDao,
-                          TagDao tagDao,
-                          SongService songService,
-                          EntityManager em,
-                          ListSort<Song> listSortUtil) {
-        this.songDao = songDao;
-        this.userDao = userDao;
-        this.tagDao = tagDao;
-        this.songService = songService;
-        this.em = em;
-        this.listSortUtil = listSortUtil;
+    private final DetachSongFromTagCommand detachSongFromTagCommand;
+
+    private final SyncSongContentCommand syncSongContentCommand;
+
+    private final MergeSongsCommand mergeSongsCommand;
+
+    public SongController(SongByIdQuery songByIdQuery,
+                          SongsByIdsQuery songsByIdsQuery,
+                          SearchSongsByStringQuery searchSongsByStringQuery,
+                          SearchSongsByTagsAndStringQuery searchSongsByTagsAndStringQuery,
+                          CreateSongCommand createSongCommand,
+                          AttachSongToTagCommand attachSongToTagCommand,
+                          DetachSongFromTagCommand detachSongFromTagCommand,
+                          SyncSongContentCommand syncSongContentCommand,
+                          MergeSongsCommand mergeSongsCommand
+    ) {
+
+        this.songByIdQuery = songByIdQuery;
+        this.songsByIdsQuery = songsByIdsQuery;
+        this.searchSongsByStringQuery = searchSongsByStringQuery;
+        this.searchSongsByTagsAndStringQuery = searchSongsByTagsAndStringQuery;
+        this.createSongCommand = createSongCommand;
+        this.attachSongToTagCommand = attachSongToTagCommand;
+        this.detachSongFromTagCommand = detachSongFromTagCommand;
+        this.syncSongContentCommand = syncSongContentCommand;
+        this.mergeSongsCommand = mergeSongsCommand;
     }
 
     @GetMapping("{id}")
     @ResponseBody
     public Song getSongById(@PathVariable("id") long id){
-        initFilters();
-        return songDao.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "item not found"));
+        User user = getDefaultUser();
+        return songByIdQuery.getSongById(id, user).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "item not found"));
     }
 
-    @GetMapping("multiple")
-    public List<Song> getSongsByIds(@RequestParam(name="ids") List<Long> ids)
-    {
-        initFilters();
-        // !!! order not guaranteed!!
-        List<Song> songs  = songDao.findAllById(ids);
-        this.listSortUtil.sortListEntitiesByIds(songs, ids);
-        return songs;
-    }
-
-
-    // TODO: rename to /search
+    // CHECKME!!: renamed from /multiple to ""
     @GetMapping("")
+    public List<Song> getSongsByIds(@RequestParam(name="ids") List<Long> ids, Pageable pageable)
+    {
+        User user = getDefaultUser();
+        return songsByIdsQuery.getSongsByIds(ids, user);
+    }
+
+    // CHECKME!!: renamed from "" to /search
+    @GetMapping("/search")
     @JsonView(HeaderTagSummary.class)
     public Page<Song> findSongsByHeader(@RequestParam(required = false, name = "search") String search, Pageable pageable) throws ResponseStatusException {
-        initFilters();
-
-        if (search == null || search.length() < 2) {
-            System.out.println("Find all");
-            Page<Song> page = songDao.findAllWithHeadersAndTags(pageable);
-            System.out.println(page.getTotalElements() + " found");
-            return page;
-
-        } else {
-            System.out.println("Find by title cont");
-
-            System.out.println("Search string: ");
-            System.out.println(search);
-            // return songDao.findAllByTitleContaining(search, pageable);
-            return songDao.findAllByHeaderWithHeadersAndTags(search, pageable);
-        }
+        User user = getDefaultUser();
+        return this.searchSongsByStringQuery.searchSongs(search, user, pageable);
     }
 
     @GetMapping("/tags")
     @JsonView(HeaderTagSummary.class)
     public Page<Song> findSongsByTags(@RequestParam("ids") List<Long> ids, @RequestParam(required=false, name="search") String search, Pageable pageable) throws ResponseStatusException {
-        initFilters();
-        if (search == null || search.length() < 2) {
-            System.out.println("Find all by tags");
-            return songDao.findAllByTags(ids, pageable);
-        } else {
-            System.out.println("Find all by tags AND header");
-            return songDao.findAllByTagsAndContent(ids, search, pageable);
-        }
+        User user = getDefaultUser();
+        return this.searchSongsByTagsAndStringQuery.getSongsByTagsAndString(search, ids, user, pageable);
     }
 
     @PostMapping("")
     public Song createSong(@RequestBody Song newSong) {
-            return songDao.save(newSong);
+        // todo: validation
+        return this.createSongCommand.createSong(newSong);
     }
 
     @PostMapping("{songId}/tags/{tagId}")
     @JsonView(Details.class)
     public Song attachSongToTag(@PathVariable("songId") long songId, @PathVariable("tagId") long tagId) throws ResponseStatusException {
-        initFilters();
-        // search for song with such id
 
-        Optional<Song> songOpt = songDao.findById(songId);
-        if(!songOpt.isPresent()) {
+        User user = getDefaultUser();
+
+        try {
+            return this.attachSongToTagCommand.attachSongToTag(songId, tagId, user);
+        } catch(AttachSongToTagSongNotFoundException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Song is not found");
-        }
-
-        Optional<Tag> tagOpt = tagDao.findById(tagId);
-        if(!tagOpt.isPresent()) {
+        } catch(AttachSongToTagTagNotFoundException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Tag is not found");
         }
+    }
 
-        Song song = songOpt.get();
-        Tag tag = tagOpt.get();
+    @DeleteMapping("{songId}/tags/{tagId}")
+    @JsonView(Details.class)
+    public Song detachSongFromTag(@PathVariable("songId") long songId, @PathVariable("tagId") long tagId) throws ResponseStatusException {
 
-        // dont perform any checks
-        song.getTags().add(tag);
-        songDao.save(song);
+        User user = getDefaultUser();
 
-        System.out.println("re-read the song");
-        songDao.refresh(song);
-        // to return tags in right order, re-read the song
-        Optional<Song> songOptUpdated = songDao.findById(songId);
-        if(!songOptUpdated.isPresent()) {
+        try {
+            return this.detachSongFromTagCommand.detachSongFromTag(songId, tagId, user);
+        } catch(DetachSongFromTagSongNotFoundException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Song is not found");
+        } catch(DetachSongFromTagTagNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Tag is not found");
         }
-
-        return songOptUpdated.get();
     }
 
     @PostMapping("merge/{mergedId}/{masterId}")
     public ResponseEntity<Map<String, String>> mergeSong(@PathVariable("mergedId") Long mergedId, @PathVariable("masterId") Long masterId) throws ResponseStatusException {
-
-        Song masterSong = songDao.findById(masterId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "The master song wasn't found"));
-        Song mergedSong = songDao.findById(mergedId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "The merged song wasn't found"));
+        User user = getDefaultUser();
 
         try {
-            songService.mergeSong(mergedSong, masterSong);
+            mergeSongsCommand.mergeSongs(mergedId, masterId, user);
         } catch(Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Unable to merge the songs due to exception: " + e.getMessage());
         }
@@ -170,57 +144,30 @@ public class SongController extends BaseController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
-    @DeleteMapping("{songId}/tags/{tagId}")
-    @JsonView(Details.class)
-    public Song detachSongFromTag(@PathVariable("songId") long songId, @PathVariable("tagId") long tagId) throws ResponseStatusException {
-        initFilters();
-        // search for song with such id
-        Optional<Song> songOpt = songDao.findById(songId);
-        if(!songOpt.isPresent()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Song is not found");
-        }
-
-        Optional<Tag> tagOpt = tagDao.findById(tagId);
-        if(!tagOpt.isPresent()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Tag is not found");
-        }
-
-        Song song = songOpt.get();
-        Tag tag = tagOpt.get();
-
-        // dont perform any checks
-        song.getTags().remove(tag);
-        songDao.save(song);
-
-        songDao.refresh(song);
-        // to return tags in right order, re-read the song
-        Optional<Song> songOptUpdated = songDao.findById(songId);
-        return songOptUpdated.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Song is not found"));
-    }
-
     @PatchMapping("syncCloudContent/{songId}")
     @JsonView(Details.class)
     public Song syncSongContent(@PathVariable("songId") long songId) throws ResponseStatusException  {
         User user = getDefaultUser();
-        Song song = songDao.findByIdWithHeaders(songId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "item not found"));
-
         // + the problem is with auto ids in google drive - we should preserve old ids in the new db
 
         Song updatedSong;
 
         try {
-            updatedSong = songService.syncCloudContent(song, user);
-        } catch(SongServiceException e) {
-            System.out.println("An exception has occurred: " + e.getMessage());
+            updatedSong = this.syncSongContentCommand.syncSongContent(songId, user);
+        } catch (SyncSongContentSongNotFoundException e) {
+            System.out.println("An exception has occurred, song not found: " + e.getMessage());
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "A Server error occurred");
+
+        } catch (SyncSongContentUnableToGetSongCloudFilesException e) {
+            System.out.println("An exception has occurred, Unable to get song files, " + e.getMessage());
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "A Server error occurred");
+
+        } catch (SyncSongContentNotInitializedException e) {
+            System.out.println("An exception has occurred, the content has not been initialized, " + e.getMessage());
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "A Server error occurred");
         }
 
         return updatedSong;
-    }
-
-    private void initFilters() {
-        User user = getDefaultUser();
-        songDao.initContentUserFilter(user);
     }
 
 }

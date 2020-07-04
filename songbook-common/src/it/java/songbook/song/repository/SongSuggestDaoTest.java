@@ -14,7 +14,7 @@ import songbook.suggest.entity.SongCountProj;
 import songbook.suggest.entity.SongProj;
 import songbook.concert.repository.ConcertDao;
 import songbook.concert.repository.ConcertItemDao;
-import songbook.song.entity.Song;
+import songbook.domain.song.entity.Song;
 import songbook.suggest.entity.PopularSongProj;
 import songbook.suggest.repository.SongSuggestDao;
 import songbook.suggest.service.SongStatService;

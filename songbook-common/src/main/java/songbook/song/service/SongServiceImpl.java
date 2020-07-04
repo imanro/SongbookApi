@@ -7,7 +7,7 @@ import songbook.cloud.entity.CloudFile;
 import songbook.cloud.repository.CloudDao;
 import songbook.concert.entity.ConcertItem;
 import songbook.concert.repository.ConcertItemDao;
-import songbook.song.entity.Song;
+import songbook.domain.song.entity.Song;
 import songbook.song.entity.SongContent;
 import songbook.song.entity.SongContentTypeEnum;
 import songbook.song.repository.SongDao;
@@ -19,7 +19,6 @@ import javax.transaction.Transactional;
 import java.util.*;
 import java.util.function.BiPredicate;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 @Transactional

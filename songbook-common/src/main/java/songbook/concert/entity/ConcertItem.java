@@ -1,9 +1,8 @@
 package songbook.concert.entity;
-import songbook.song.entity.Song;
+import songbook.domain.song.entity.Song;
 import org.hibernate.annotations.*;
 import javax.persistence.*;
 import javax.persistence.Entity;
-import javax.persistence.NamedNativeQuery;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 

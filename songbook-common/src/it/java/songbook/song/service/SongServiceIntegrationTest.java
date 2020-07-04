@@ -13,7 +13,7 @@ import songbook.concert.entity.Concert;
 import songbook.concert.entity.ConcertItem;
 import songbook.concert.repository.ConcertDao;
 import songbook.concert.repository.ConcertItemDao;
-import songbook.song.entity.Song;
+import songbook.domain.song.entity.Song;
 import songbook.song.entity.SongContent;
 import songbook.song.entity.SongContentTypeEnum;
 import songbook.song.repository.SongContentDao;
