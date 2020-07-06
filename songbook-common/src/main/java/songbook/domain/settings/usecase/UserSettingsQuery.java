@@ -1,7 +1,7 @@
 package songbook.domain.settings.usecase;
 
 import org.springframework.stereotype.Service;
-import songbook.user.entity.User;
+import songbook.domain.user.entity.User;
 
 import java.util.Map;
 

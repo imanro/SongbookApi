@@ -1,9 +1,8 @@
 package songbook.settings.entity;
 
-import com.fasterxml.jackson.annotation.JsonView;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-import songbook.user.entity.User;
+import songbook.domain.user.entity.User;
 
 import javax.persistence.*;
 

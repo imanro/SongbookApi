@@ -2,7 +2,7 @@ package songbook.sharing.configuration;
 
 import songbook.settings.service.SettingsService;
 import songbook.settings.service.SettingsException;
-import songbook.user.entity.User;
+import songbook.domain.user.entity.User;
 
 public class SharingSettings {
 

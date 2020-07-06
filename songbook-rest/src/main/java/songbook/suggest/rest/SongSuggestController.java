@@ -19,7 +19,7 @@ import songbook.suggest.entity.PopularSongProj;
 import songbook.suggest.repository.SongSuggestDao;
 import songbook.suggest.service.SongStatService;
 import songbook.suggest.view.Summary;
-import songbook.user.entity.User;
+import songbook.domain.user.entity.User;
 import songbook.user.repository.UserDao;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;

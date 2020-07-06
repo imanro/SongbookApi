@@ -17,7 +17,7 @@ import songbook.song.entity.SongContent;
 import songbook.song.entity.SongContentTypeEnum;
 import songbook.song.repository.SongContentDao;
 import songbook.song.repository.SongDao;
-import songbook.user.entity.User;
+import songbook.domain.user.entity.User;
 
 import java.util.*;
 

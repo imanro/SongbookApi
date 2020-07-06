@@ -8,12 +8,9 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import songbook.settings.configuration.UserDefaultSettings;
 import songbook.settings.repository.SettingDao;
-import songbook.user.entity.User;
+import songbook.domain.user.entity.User;
 
-import java.lang.reflect.Array;
-import java.util.Arrays;
 import java.util.Map;
-import java.util.Set;
 
 import static org.mockito.Mockito.*;
 

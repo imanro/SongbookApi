@@ -1,7 +1,7 @@
 package songbook.importer.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import songbook.user.entity.User;
+import songbook.domain.user.entity.User;
 import songbook.user.repository.UserDao;
 import java.util.Optional;
 

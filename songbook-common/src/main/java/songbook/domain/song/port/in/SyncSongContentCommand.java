@@ -1,6 +1,6 @@
 package songbook.domain.song.port.in;
 
-import songbook.user.entity.User;
+import songbook.domain.user.entity.User;
 import songbook.domain.song.entity.Song;
 
 public interface SyncSongContentCommand {

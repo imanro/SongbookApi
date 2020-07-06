@@ -111,15 +111,18 @@ project(':songbook-common') {
     }
     dependencies {
         api ('org.springframework.boot:spring-boot-starter-data-jpa')
-        api ("org.springframework.data:spring-data-commons")
+        api ('org.springframework.data:spring-data-commons')
+        api ('org.springframework.boot:spring-boot-starter-security')
+        api ('org.springframework.boot:spring-boot-starter-web') // CHECKME
+        api ('com.auth0:java-jwt:3.4.0')
 
         api ('com.google.api-client:google-api-client:1.30.6')
         api ('com.google.oauth-client:google-oauth-client-jetty:1.30.6')
         api ('org.mariadb.jdbc:mariadb-java-client:2.6.0')
         api ('com.google.apis:google-api-services-drive:v3-rev192-1.25.0')
         api ('org.apache.pdfbox:pdfbox:2.0.11')
-        api ("javax.mail:mail:1.4")
-        api ("javax.validation:validation-api:1.0.0.GA")
+        api ('javax.mail:mail:1.4')
+        api ('javax.validation:validation-api:1.0.0.GA')
 
         implementation ('com.fasterxml.jackson.core:jackson-annotations:2.9.9')
         implementation ('mysql:mysql-connector-java:8.0.16')

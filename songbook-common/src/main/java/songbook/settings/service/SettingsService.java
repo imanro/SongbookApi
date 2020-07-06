@@ -5,10 +5,9 @@ import songbook.settings.entity.Setting;
 import songbook.settings.repository.SettingDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import songbook.user.entity.User;
+import songbook.domain.user.entity.User;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 

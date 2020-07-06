@@ -3,7 +3,7 @@ package songbook.domain.song.usecase;
 import songbook.domain.song.port.in.AttachSongToTagTagNotFoundException;
 import songbook.domain.song.port.out.*;
 import songbook.tag.entity.Tag;
-import songbook.user.entity.User;
+import songbook.domain.user.entity.User;
 import songbook.domain.song.entity.Song;
 import songbook.domain.song.port.in.AttachSongToTagSongNotFoundException;
 

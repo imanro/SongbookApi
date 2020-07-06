@@ -10,7 +10,7 @@ import songbook.domain.song.entity.Song;
 import songbook.suggest.entity.SongCountProj;
 import songbook.suggest.entity.SongProj;
 import songbook.suggest.entity.PopularSongProj;
-import songbook.user.entity.User;
+import songbook.domain.user.entity.User;
 
 import java.util.Date;
 

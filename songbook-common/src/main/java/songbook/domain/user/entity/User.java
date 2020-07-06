@@ -1,12 +1,10 @@
-package songbook.user.entity;
+package songbook.domain.user.entity;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
 
 @Entity
 public class User {
@@ -16,18 +14,16 @@ public class User {
 
     private String email;
 
-    @Column(name = "first_name")
     private String firstName;
 
-    @Column(name = "last_name")
     private String lastName;
 
+    private String password;
+
     @CreationTimestamp
-    @Column(name = "create_time")
     private Date createTime;
 
     @UpdateTimestamp
-    @Column(name = "update_time")
     private Date updateTime;
 
     public long getId() {
@@ -57,6 +53,15 @@ public class User {
         return this;
     }
 
+    public String getPassword() {
+        return password;
+    }
+
+    public User setPassword(String password) {
+        this.password = password;
+        return this;
+    }
+
     public String getLastName() {
         return lastName;
     }
@@ -83,6 +88,4 @@ public class User {
         this.updateTime = updateTime;
         return this;
     }
-
-
 }

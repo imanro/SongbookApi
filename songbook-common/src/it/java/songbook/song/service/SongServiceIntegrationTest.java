@@ -20,7 +20,7 @@ import songbook.song.repository.SongContentDao;
 import songbook.song.repository.SongDao;
 import songbook.tag.entity.Tag;
 import songbook.tag.repository.TagDao;
-import songbook.user.entity.User;
+import songbook.domain.user.entity.User;
 
 import java.util.Arrays;
 import java.util.Date;

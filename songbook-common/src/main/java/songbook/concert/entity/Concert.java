@@ -9,7 +9,7 @@ import javax.persistence.OrderBy;
 import org.hibernate.annotations.*;
 import java.util.Date;
 import java.util.Set;
-import songbook.user.entity.User;
+import songbook.domain.user.entity.User;
 import com.fasterxml.jackson.annotation.*;
 import songbook.concert.view.Summary;
 import songbook.concert.view.Details;

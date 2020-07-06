@@ -18,7 +18,7 @@ import songbook.concert.service.ConcertServiceException;
 import songbook.rest.model.Errors;
 import songbook.song.repository.SongDao;
 import songbook.song.service.SongService;
-import songbook.user.entity.User;
+import songbook.domain.user.entity.User;
 import songbook.user.repository.UserDao;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.http.HttpStatus;
@@ -29,7 +29,6 @@ import javax.validation.Valid;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 
 @RestController
 @RequestMapping("/concert")

@@ -4,12 +4,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.TestPropertySource;
-import songbook.sharing.provider.MailSender;
-import songbook.sharing.provider.MailSenderException;
 import songbook.song.entity.SongContent;
 import songbook.song.entity.SongContentTypeEnum;
-import songbook.user.entity.User;
+import songbook.domain.user.entity.User;
 import songbook.user.repository.UserDao;
 import songbook.util.file.FileException;
 import songbook.util.file.TmpDirStorage;
@@ -18,7 +15,6 @@ import songbook.util.file.entity.FileHolder;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
-import java.util.ArrayList;
 import java.util.List;
 import javax.mail.Transport;
 

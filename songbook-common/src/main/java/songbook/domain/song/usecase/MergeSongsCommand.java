@@ -6,7 +6,7 @@ import songbook.domain.song.port.in.MergeSongsSongNotFoundException;
 import songbook.domain.song.port.out.*;
 import songbook.song.entity.SongContent;
 import songbook.tag.entity.Tag;
-import songbook.user.entity.User;
+import songbook.domain.user.entity.User;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

@@ -6,7 +6,7 @@ import songbook.song.entity.SongContent;
 import songbook.song.repository.SongContentDao;
 import songbook.song.repository.SongDao;
 import songbook.tag.entity.Tag;
-import songbook.user.entity.User;
+import songbook.domain.user.entity.User;
 import songbook.util.list.ListSort;
 
 import java.util.ArrayList;

@@ -2,7 +2,7 @@ package songbook.common.controller;
 
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
-import songbook.user.entity.User;
+import songbook.domain.user.entity.User;
 import songbook.user.repository.UserDao;
 
 import javax.persistence.EntityManager;

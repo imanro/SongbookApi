@@ -4,7 +4,7 @@ import org.springframework.stereotype.Service;
 import songbook.domain.song.port.out.FindSongsByStringPort;
 import songbook.domain.song.port.out.FindSongsPort;
 import songbook.domain.song.entity.Song;
-import songbook.user.entity.User;
+import songbook.domain.user.entity.User;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;

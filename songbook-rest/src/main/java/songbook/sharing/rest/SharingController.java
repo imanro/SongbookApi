@@ -13,7 +13,7 @@ import songbook.sharing.service.SharingService;
 import songbook.sharing.service.SharingServiceException;
 import songbook.song.entity.SongContent;
 import songbook.song.repository.SongContentDao;
-import songbook.user.entity.User;
+import songbook.domain.user.entity.User;
 import songbook.util.list.ListSort;
 
 import javax.validation.Valid;

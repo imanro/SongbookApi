@@ -4,7 +4,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import javax.transaction.Transactional;
 import songbook.settings.entity.Setting;
-import songbook.user.entity.User;
+import songbook.domain.user.entity.User;
 
 import java.util.List;
 

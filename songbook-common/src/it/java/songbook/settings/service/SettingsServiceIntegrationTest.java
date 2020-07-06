@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import songbook.common.BaseIt;
 import songbook.settings.repository.SettingDao;
-import songbook.user.entity.User;
+import songbook.domain.user.entity.User;
 import org.junit.jupiter.api.Assertions;
 
 

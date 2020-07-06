@@ -1,7 +1,7 @@
 package songbook.song.repository;
 
 import songbook.domain.song.entity.Song;
-import songbook.user.entity.User;
+import songbook.domain.user.entity.User;
 
 public interface SongDaoCustom {
     void refresh(Song song);

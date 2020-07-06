@@ -3,18 +3,14 @@ package songbook.settings.rest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 import songbook.common.controller.BaseController;
-import songbook.settings.entity.Setting;
-import songbook.settings.repository.SettingDao;
 import songbook.settings.service.SettingsException;
 import songbook.settings.service.SettingsService;
-import songbook.user.entity.User;
+import songbook.domain.user.entity.User;
 
-import java.util.List;
 import java.util.Map;
 
 @RestController

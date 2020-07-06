@@ -6,7 +6,7 @@ import songbook.domain.song.entity.Song;
 import songbook.domain.song.usecase.SearchSongsByTagsAndStringQuery;
 import songbook.song.view.Details;
 import songbook.song.view.HeaderTagSummary;
-import songbook.user.entity.User;
+import songbook.domain.user.entity.User;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import org.springframework.data.domain.Page;

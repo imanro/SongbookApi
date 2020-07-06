@@ -7,7 +7,7 @@ import songbook.domain.song.port.in.SyncSongContentUnableToGetSongCloudFilesExce
 import songbook.domain.song.port.out.*;
 import songbook.song.entity.SongContent;
 import songbook.song.entity.SongContentTypeEnum;
-import songbook.user.entity.User;
+import songbook.domain.user.entity.User;
 import songbook.domain.song.port.in.SyncSongContentNotInitializedException;
 import songbook.domain.song.port.in.SyncSongContentSongNotFoundException;
 

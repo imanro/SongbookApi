@@ -3,7 +3,7 @@ package songbook.domain.song.usecase;
 import org.springframework.stereotype.Service;
 import songbook.domain.song.port.out.FindSongByIdPort;
 import songbook.domain.song.entity.Song;
-import songbook.user.entity.User;
+import songbook.domain.user.entity.User;
 
 import java.util.Optional;
 

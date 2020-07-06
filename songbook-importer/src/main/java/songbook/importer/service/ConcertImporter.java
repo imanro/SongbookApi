@@ -13,7 +13,7 @@ import songbook.concert.repository.ConcertGroupDao;
 import songbook.concert.repository.ConcertItemDao;
 import songbook.domain.song.entity.Song;
 import songbook.song.repository.SongDao;
-import songbook.user.entity.User;
+import songbook.domain.user.entity.User;
 
 import java.util.List;
 

@@ -6,7 +6,7 @@ import songbook.settings.service.SettingsService;
 import songbook.settings.service.SettingsException;
 import songbook.sharing.configuration.SharingProperties;
 import songbook.sharing.configuration.SharingSettings;
-import songbook.user.entity.User;
+import songbook.domain.user.entity.User;
 import songbook.util.file.entity.FileHolder;
 
 import java.io.UnsupportedEncodingException;

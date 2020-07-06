@@ -18,7 +18,7 @@ import songbook.domain.song.entity.Song;
 import songbook.suggest.entity.PopularSongProj;
 import songbook.suggest.repository.SongSuggestDao;
 import songbook.suggest.service.SongStatService;
-import songbook.user.entity.User;
+import songbook.domain.user.entity.User;
 import songbook.user.repository.UserDao;
 import java.time.LocalDateTime;
 import java.time.ZoneId;

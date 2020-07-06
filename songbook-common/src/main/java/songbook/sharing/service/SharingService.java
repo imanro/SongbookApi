@@ -9,7 +9,7 @@ import songbook.sharing.provider.MailSender;
 import songbook.sharing.provider.MailSenderException;
 import songbook.song.entity.SongContent;
 import songbook.song.service.SongService;
-import songbook.user.entity.User;
+import songbook.domain.user.entity.User;
 import songbook.util.file.TmpDirStorage;
 import songbook.util.file.TmpResourceResolver;
 import songbook.util.file.entity.FileHolder;
@@ -20,7 +20,6 @@ import javax.mail.Transport;
 import javax.mail.internet.MimeMessage;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
 
 @Service
 public class SharingService {
