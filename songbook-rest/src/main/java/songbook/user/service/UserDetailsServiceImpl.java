@@ -1,4 +1,4 @@
-package songbook.domain.user.service;
+package songbook.user.service;
 
 import songbook.domain.user.entity.User;
 

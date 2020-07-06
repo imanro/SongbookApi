@@ -114,7 +114,6 @@ project(':songbook-common') {
         api ('org.springframework.data:spring-data-commons')
         api ('org.springframework.boot:spring-boot-starter-security')
         api ('org.springframework.boot:spring-boot-starter-web') // CHECKME
-        api ('com.auth0:java-jwt:3.4.0')
 
         api ('com.google.api-client:google-api-client:1.30.6')
         api ('com.google.oauth-client:google-oauth-client-jetty:1.30.6')
@@ -175,6 +174,10 @@ project(':songbook-rest') {
 
     dependencies {
         api project(":songbook-common")
+        api ('io.jsonwebtoken:jjwt-api:0.11.2')
+        implementation ('io.jsonwebtoken:jjwt-impl:0.11.2')
+        implementation ('io.jsonwebtoken:jjwt-jackson:0.11.2')
+
         implementation ("org.springframework.boot:spring-boot-starter-web")
         implementation ('org.springframework.boot:spring-boot-starter-data-jpa')
         providedRuntime('org.springframework.boot:spring-boot-starter-tomcat')

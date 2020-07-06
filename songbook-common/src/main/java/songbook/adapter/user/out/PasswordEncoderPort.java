@@ -17,6 +17,6 @@ public class PasswordEncoderPort implements PasswordEndoderPort {
 
     @Override
     public String encode(String password) {
-        return null;
+        return bCryptPasswordEncoder.encode(password);
     }
 }
