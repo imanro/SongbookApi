@@ -12,6 +12,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import songbook.domain.user.port.in.UserByEmailQuery;
 
 import static songbook.security.SecurityConstants.SIGN_UP_URL;
 
@@ -22,10 +23,15 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
 
     private final UserDetailsService userDetailsService;
 
+    private final UserByEmailQuery userByEmailQuery;
+
     public WebSecurity(BCryptPasswordEncoder bCryptPasswordEncoder,
-                       UserDetailsService userDetailsService) {
+                       UserDetailsService userDetailsService,
+                       UserByEmailQuery userByEmailQuery
+                       ) {
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.userDetailsService = userDetailsService;
+        this.userByEmailQuery = userByEmailQuery;
     }
 
     @Override
@@ -35,7 +41,7 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
                 .anyRequest().authenticated()
                 .and()
                 .addFilter(new JwtAuthenticationFilter(authenticationManager()))
-                .addFilter(new JwtAuthorizationFilter(authenticationManager()))
+                .addFilter(new JwtAuthorizationFilter(authenticationManager(), userByEmailQuery))
                 // this disables session creation on Spring Security
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);

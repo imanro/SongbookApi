@@ -1,5 +1,6 @@
 package songbook.song.rest;
 
+import org.springframework.security.core.Authentication;
 import songbook.common.controller.BaseController;
 import songbook.domain.song.port.in.*;
 import songbook.domain.song.entity.Song;
@@ -15,6 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -66,31 +68,31 @@ public class SongController extends BaseController {
 
     @GetMapping("{id}")
     @ResponseBody
-    public Song getSongById(@PathVariable("id") long id){
-        User user = getDefaultUser();
+    public Song getSongById(@PathVariable("id") long id, Authentication authentication){
+        User user = (User)authentication.getPrincipal();
         return songByIdQuery.getSongById(id, user).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "item not found"));
     }
 
     // CHECKME!!: renamed from /multiple to ""
     @GetMapping("")
-    public List<Song> getSongsByIds(@RequestParam(name="ids") List<Long> ids, Pageable pageable)
+    public List<Song> getSongsByIds(@RequestParam(name="ids") List<Long> ids, Pageable pageable, Authentication authentication)
     {
-        User user = getDefaultUser();
+        User user = (User)authentication.getPrincipal();
         return songsByIdsQuery.getSongsByIds(ids, user);
     }
 
     // CHECKME!!: renamed from "" to /search
     @GetMapping("/search")
     @JsonView(HeaderTagSummary.class)
-    public Page<Song> findSongsByHeader(@RequestParam(required = false, name = "search") String search, Pageable pageable) throws ResponseStatusException {
-        User user = getDefaultUser();
+    public Page<Song> findSongsByHeader(@RequestParam(required = false, name = "search") String search, Pageable pageable, Authentication authentication) throws ResponseStatusException {
+        User user = (User)authentication.getPrincipal();
         return this.searchSongsByStringQuery.searchSongs(search, user, pageable);
     }
 
     @GetMapping("/tags")
     @JsonView(HeaderTagSummary.class)
-    public Page<Song> findSongsByTags(@RequestParam("ids") List<Long> ids, @RequestParam(required=false, name="search") String search, Pageable pageable) throws ResponseStatusException {
-        User user = getDefaultUser();
+    public Page<Song> findSongsByTags(@RequestParam("ids") List<Long> ids, @RequestParam(required=false, name="search") String search, Pageable pageable, Authentication authentication) throws ResponseStatusException {
+        User user = (User)authentication.getPrincipal();
         return this.searchSongsByTagsAndStringQuery.getSongsByTagsAndString(search, ids, user, pageable);
     }
 
@@ -102,9 +104,9 @@ public class SongController extends BaseController {
 
     @PostMapping("{songId}/tags/{tagId}")
     @JsonView(Details.class)
-    public Song attachSongToTag(@PathVariable("songId") long songId, @PathVariable("tagId") long tagId) throws ResponseStatusException {
+    public Song attachSongToTag(@PathVariable("songId") long songId, @PathVariable("tagId") long tagId, Authentication authentication) throws ResponseStatusException {
 
-        User user = getDefaultUser();
+        User user = (User)authentication.getPrincipal();
 
         try {
             return this.attachSongToTagCommand.attachSongToTag(songId, tagId, user);
@@ -117,9 +119,9 @@ public class SongController extends BaseController {
 
     @DeleteMapping("{songId}/tags/{tagId}")
     @JsonView(Details.class)
-    public Song detachSongFromTag(@PathVariable("songId") long songId, @PathVariable("tagId") long tagId) throws ResponseStatusException {
+    public Song detachSongFromTag(@PathVariable("songId") long songId, @PathVariable("tagId") long tagId, Authentication authentication) throws ResponseStatusException {
 
-        User user = getDefaultUser();
+        User user = (User)authentication.getPrincipal();
 
         try {
             return this.detachSongFromTagCommand.detachSongFromTag(songId, tagId, user);
@@ -131,8 +133,8 @@ public class SongController extends BaseController {
     }
 
     @PostMapping("merge/{mergedId}/{masterId}")
-    public ResponseEntity<Map<String, String>> mergeSong(@PathVariable("mergedId") Long mergedId, @PathVariable("masterId") Long masterId) throws ResponseStatusException {
-        User user = getDefaultUser();
+    public ResponseEntity<Map<String, String>> mergeSong(@PathVariable("mergedId") Long mergedId, @PathVariable("masterId") Long masterId, Authentication authentication) throws ResponseStatusException {
+        User user = (User)authentication.getPrincipal();
 
         try {
             mergeSongsCommand.mergeSongs(mergedId, masterId, user);
@@ -146,8 +148,8 @@ public class SongController extends BaseController {
 
     @PatchMapping("syncCloudContent/{songId}")
     @JsonView(Details.class)
-    public Song syncSongContent(@PathVariable("songId") long songId) throws ResponseStatusException  {
-        User user = getDefaultUser();
+    public Song syncSongContent(@PathVariable("songId") long songId, Authentication authentication) throws ResponseStatusException  {
+        User user = (User)authentication.getPrincipal();
         // + the problem is with auto ids in google drive - we should preserve old ids in the new db
 
         Song updatedSong;

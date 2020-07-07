@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 // import songbook.domain.user.entity.User;
 import static songbook.security.SecurityConstants.*;
 
-
+// the class that helps with user's credentials
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     private final AuthenticationManager authenticationManager;
@@ -50,13 +50,12 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         );
     }
 
+    // exposes token
     @Override
     protected void successfulAuthentication(HttpServletRequest req,
                                             HttpServletResponse res,
                                             FilterChain chain,
                                             Authentication auth) throws IOException, ServletException {
-
-        //
 
         User user = ((User) auth.getPrincipal());
 

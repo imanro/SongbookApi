@@ -5,7 +5,11 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import songbook.domain.user.entity.User;
+import songbook.domain.user.port.in.UserByEmailQuery;
+
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -16,10 +20,16 @@ import java.util.stream.Collectors;
 
 import static songbook.security.SecurityConstants.*;
 
+// the class that deals with getting user from token (The meaning of authorization - assigning of user identity)
 public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
-    public JwtAuthorizationFilter(AuthenticationManager authManager) {
+    private final UserByEmailQuery userByEmailQuery;
+
+    public JwtAuthorizationFilter(AuthenticationManager authManager,
+                                  UserByEmailQuery userByEmailQuery
+    ) {
         super(authManager);
+        this.userByEmailQuery = userByEmailQuery;
     }
 
     @Override
@@ -62,7 +72,9 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
                         .collect(Collectors.toList());
 
                 if (!username.equals("")) {
-                    return new UsernamePasswordAuthenticationToken(username, null, authorities);
+
+                    User domainUser = userByEmailQuery.getUserByEmail(username).orElseThrow(() -> new Exception("The user was not found"));
+                    return new UsernamePasswordAuthenticationToken(domainUser, null, authorities);
                 }
             } catch (ExpiredJwtException exception) {
                 // log.warn("Request to parse expired JWT : {} failed : {}", token, exception.getMessage());
