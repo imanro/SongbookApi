@@ -119,7 +119,8 @@ project(':songbook-common') {
         api ('com.google.apis:google-api-services-drive:v3-rev192-1.25.0')
         api ('org.apache.pdfbox:pdfbox:2.0.11')
         api ("javax.mail:mail:1.4")
-        api ("javax.validation:validation-api:1.0.0.GA")
+        // api ("javax.validation:validation-api:1.0.0.GA")
+        api ("javax.validation:validation-api:2.0.1.Final")
 
         implementation ('com.fasterxml.jackson.core:jackson-annotations:2.9.9')
         implementation ('mysql:mysql-connector-java:8.0.16')

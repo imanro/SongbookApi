@@ -88,7 +88,8 @@ public class SyncSongContentCommand implements songbook.domain.song.port.in.Sync
 
         List<SongContent> extraSongContent = this.findMissingItems(songCloudContent, cloudFiles, compareContentWithCloudFile);
 
-        System.out.println("Found " + missingCloudFiles.size() + " extra files in cloud");
+        System.out.println("Found " + missingCloudFiles.size() + " missing files in cloud");
+        System.out.println("Found " + extraSongContent.size() + " extra files in cloud");
 
         System.out.println("The size of content before is:" + song.getContent().size());
 

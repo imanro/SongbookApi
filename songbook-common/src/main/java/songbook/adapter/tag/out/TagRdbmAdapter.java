@@ -21,4 +21,8 @@ public class TagRdbmAdapter implements FindTagByIdPort {
     public Optional<Tag> findTagById(long id) {
         return tagDao.findById(id);
     }
+
+    public Tag saveTag(Tag tag) {
+        return tagDao.save(tag);
+    }
 }
